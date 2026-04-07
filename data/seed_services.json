@@ -1,0 +1,9 @@
+[
+  { "id": 1, "title": "Electrical Engineering Consultancy",   "desc": "Expert consultation for all electrical engineering needs — feasibility studies, design review, and technical advisory services.", "icon": "fas fa-hard-hat" },
+  { "id": 2, "title": "Power System Design",                  "desc": "End-to-end power system planning and design, including load analysis, single-line diagrams, and protection coordination.", "icon": "fas fa-project-diagram" },
+  { "id": 3, "title": "Industrial Electrical Installations",  "desc": "Full installation services for factories, warehouses, and industrial facilities — panels, conduit, motors, and control systems.", "icon": "fas fa-industry" },
+  { "id": 4, "title": "Power Distribution Systems",           "desc": "Design and installation of low-voltage and medium-voltage distribution networks for reliable power delivery.", "icon": "fas fa-network-wired" },
+  { "id": 5, "title": "Electrical Maintenance & Repairs",     "desc": "Scheduled and emergency maintenance for all electrical systems, ensuring maximum uptime and safe operation.", "icon": "fas fa-tools" },
+  { "id": 6, "title": "Energy Efficiency Solutions",          "desc": "Audits, retrofits, and smart solutions that reduce energy consumption and lower operating costs for businesses.", "icon": "fas fa-leaf" },
+  { "id": 7, "title": "Electrical Safety Inspections",        "desc": "Comprehensive safety assessments, testing, and compliance reporting to meet national and international electrical standards.", "icon": "fas fa-shield-alt" }
+]

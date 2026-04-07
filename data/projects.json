@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "title": "Tema Industrial Zone Electrification",
+    "desc": "Complete MV/LV electrification of a 5-hectare industrial estate including substations and distribution boards.",
+    "category": "Industrial",
+    "img": "/uploads/Document1-1775496662461.png"
+  },
+  {
+    "id": 2,
+    "title": "Commercial Plaza Power System Design",
+    "desc": "Full power system design and installation for a 12-storey commercial building in Accra central.",
+    "category": "Commercial",
+    "img": ""
+  },
+  {
+    "id": 3,
+    "title": "Ghana Highway Street Lighting Project",
+    "desc": "Supply and installation of 120 LED street lighting units along a 15km highway corridor in Greater Accra.",
+    "category": "Infrastructure",
+    "img": ""
+  },
+  {
+    "id": 4,
+    "title": "Factory Predictive Maintenance Programme",
+    "desc": "Implementation of a 12-month predictive maintenance schedule for a large manufacturing plant in Tema.",
+    "category": "Maintenance",
+    "img": ""
+  },
+  {
+    "id": 5,
+    "title": "Port Facility Power Distribution Upgrade",
+    "desc": "Upgrade of power distribution infrastructure for a logistics terminal, improving reliability and capacity.",
+    "category": "Industrial",
+    "img": ""
+  },
+  {
+    "id": 6,
+    "title": "Hotel Energy Efficiency Retrofit",
+    "desc": "LED lighting, HVAC optimization and smart metering system installation reducing energy costs by 35%.",
+    "category": "Commercial",
+    "img": ""
+  }
+]

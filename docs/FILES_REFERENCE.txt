@@ -1,0 +1,327 @@
+================================================================================
+                    PROJECT FILES REFERENCE GUIDE
+================================================================================
+
+CORE SERVER FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 server.js
+   Purpose: Main Express.js backend server
+   Includes:
+   • Express middleware setup (CORS, JSON, session management)
+   • Express-session configuration (server-side auth)
+   • Authentication endpoints (/api/auth/*)
+   • Services CRUD endpoints (/api/services/*)
+   • Projects CRUD endpoints (/api/projects/*)
+   • Gallery CRUD endpoints (/api/gallery/*)
+   • Consultations endpoints (/api/consultations/*)
+   • Static file serving (public, admin folders)
+   Port: 3000 (configurable via PORT env var)
+   Admin: admin/admin123 (change in production)
+
+📄 package.json
+   Purpose: Dependencies management
+   Contains:
+   • express (web framework)
+   • cors (cross-origin requests)
+   • express-session (server-side sessions)
+   • Scripts: "start" (npm start to run server)
+
+================================================================================
+
+PUBLIC WEBSITE FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📁 public/index.html
+   Purpose: Main website homepage
+   Includes:
+   • Navigation bar (logo, menu, mobile toggle)
+   • Hero section (title, CTA buttons, stats)
+   • Services section (grid of services)
+   • Projects section (portfolio with filters)
+   • Gallery section (image showcase)
+   • About section (company info)
+   • Contact section (phone, email)
+   • Consultation form (get quotes)
+   • Footer (brand, links, copyright)
+   • Invisible admin button (bottom-right corner)
+   Features:
+   • Responsive (mobile, tablet, desktop)
+   • Left-aligned content
+   • Yellow accent (#FFD000)
+   • home.png background image
+   • Loads data from APIs
+
+📁 public/css/style.css
+   Purpose: Website styling
+   Contains:
+   • CSS variables (colors, fonts, spacing)
+   • Global styles (reset, base, typography)
+   • Navigation styling (navbar, responsive menu)
+   • Hero section animations
+   • Sections styling (services, projects, gallery, etc.)
+   • Footer styling
+   • Responsive breakpoints (1024px, 768px, 480px)
+   • Invisible admin button styles
+   Colors:
+   • --black: #0f0f0f
+   • --yellow: #FFD000 (accent)
+   • --red: #E53935 (errors)
+   • --dark-grey: #1c1c1c, #2a2a2a, #3a3a3a
+   Fonts:
+   • Poppins (headings, weights 300-900)
+   • Open Sans (body, weights 300-600)
+
+📁 public/js/data.js
+   Purpose: Load and manage data from APIs
+   Functions:
+   • loadServices() - Fetch services from /api/services
+   • loadProjects() - Fetch projects from /api/projects
+   • loadGallery() - Fetch gallery from /api/gallery
+   • renderServices() - Display services on page
+   • renderProjects() - Display projects on page
+   • renderGallery() - Display gallery items
+   • Used by: main.js to populate website content
+
+📁 public/js/main.js
+   Purpose: Website interactivity
+   Features:
+   • Navigation mobile menu toggle
+   • Smooth scroll anchors
+   • Form validation and submission
+   • Consultation form handler (POST to /api/consultations)
+   • Project filter by category
+   • Gallery lightbox functionality
+   • Updates footer year automatically
+
+================================================================================
+
+ADMIN PANEL FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📁 admin/login.html
+   Purpose: Admin login page
+   Features:
+   • Login form (username/password)
+   • Validates against server (/api/auth/login)
+   • Creates server-side session (7 days)
+   • Redirects to dashboard on success
+   • Shows error messages on failure
+   • Checks auth status on page load
+   • Design: Dark theme, yellow accents
+   • Responsive (mobile, tablet, desktop)
+
+📁 admin/dashboard.html
+   Purpose: Main admin control panel
+   Contains:
+   • Sidebar navigation (5 tabs)
+   • Overview tab (stats, recent consultations)
+   • Services tab (table, add/edit/delete forms)
+   • Projects tab (table, add/edit/delete forms)
+   • Gallery tab (grid, add/edit/delete forms)
+   • Consultations tab (table, delete buttons)
+   • Modal forms for adding/editing items
+   • Logout button
+   Design:
+   • Sidebar navigation (280px fixed)
+   • Dark theme (#0f0f0f, #1c1c1c)
+   • Yellow accent color (#FFD000)
+   • Professional admin UI
+
+📁 admin/css/dashboard.css
+   Purpose: Admin dashboard styling
+   Contains:
+   • Sidebar navigation styles
+   • Tab switching styles
+   • Table and grid layouts
+   • Modal forms and overlays
+   • Stat cards with icons
+   • Responsive breaks (1024px, 768px, 480px)
+   • Dark color scheme
+   • Button and form styles
+   • Hover and focus states
+
+📁 admin/js/dashboard.js
+   Purpose: Admin CRUD operations
+   Functions:
+   • checkAuth() - Verify session on load
+   • loadServices/Projects/Gallery/Consultations() - Fetch data
+   • renderServices/Projects/Gallery() - Display data in tables
+   • handleServiceSubmit/ProjectSubmit/GallerySubmit() - Add/edit
+   • deleteService/Project/Gallery/Consultation() - Delete items
+   • Modal management (open/close)
+   • Form clearing on save
+   • logout() - End session
+   All operations use fetch() with proper HTTP methods (GET, POST, PUT, DELETE)
+   Error handling with try/catch
+
+================================================================================
+
+DATABASE FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📁 data/services.json
+   Purpose: Stores all services
+   Format: Array of service objects
+   Fields:
+   • id: Unique identifier
+   • icon: Font Awesome icon class (fas fa-*)
+   • title: Service name
+   • description: Service description
+
+📁 data/projects.json
+   Purpose: Stores all projects
+   Format: Array of project objects
+   Fields:
+   • id: Unique identifier
+   • title: Project name
+   • category: Industrial / Commercial / Infrastructure
+   • description: Project details
+   • image: Image URL
+
+📁 data/gallery.json
+   Purpose: Stores all gallery images
+   Format: Array of gallery objects
+   Fields:
+   • id: Unique identifier
+   • title: Image title/caption
+   • image: Image URL
+
+📁 data/consultations.json
+   Purpose: Stores consultation requests
+   Format: Array of consultation objects
+   Fields:
+   • id: Unique identifier
+   • date: ISO date (YYYY-MM-DD)
+   • name: Customer name
+   • company: Customer company
+   • email: Customer email
+   • phone: Customer phone
+   • service: Service interested in
+   • description: Consultation details
+
+📁 data/seed_services.json
+   Purpose: Initial services data
+   Auto-loaded on first server start to populate services.json
+
+📁 data/seed_projects.json
+   Purpose: Initial projects data
+   Auto-loaded on first server start to populate projects.json
+
+================================================================================
+
+STATIC ASSETS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🖼️  logo.png
+   Purpose: AGEL company logo
+   Size: 50×50px recommended
+   Used: Navbar and footer branding
+   Border: 1.5px yellow (#FFD000)
+   Border-radius: 12px
+
+🖼️  home.png
+   Purpose: Website background image
+   Size: 1920×1080px recommended
+   Used: Hero section and page background
+   Type: Full-width, fixed position
+   Display: With 0% overlay (fully visible)
+
+================================================================================
+
+DOCUMENTATION FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📖 README.md
+   Complete documentation including:
+   • Project structure
+   • Quick start guide
+   • Feature list
+   • API endpoints
+   • Database schema
+   • Technology stack
+   • Configuration options
+   • Troubleshooting
+   • Customization guide
+
+📖 CLEANUP_SUMMARY.txt
+   This document - overview of project cleanup
+
+================================================================================
+
+API ENDPOINTS SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PUBLIC (No authentication):
+   GET  /api/services
+   GET  /api/projects
+   GET  /api/gallery
+   POST /api/auth/login
+
+ADMIN ONLY (Requires authentication):
+   POST   /api/services
+   PUT    /api/services/:id
+   DELETE /api/services/:id
+   POST   /api/projects
+   PUT    /api/projects/:id
+   DELETE /api/projects/:id
+   POST   /api/gallery
+   PUT    /api/gallery/:id
+   DELETE /api/gallery/:id
+   GET    /api/consultations
+   DELETE /api/consultations/:id
+   POST   /api/auth/logout
+   GET    /api/auth/status
+
+See server.js for full implementation
+
+================================================================================
+
+HOW EVERYTHING CONNECTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+USER VISITS: http://localhost:3000
+   ↓
+server.js serves public/index.html
+   ↓
+index.html loads:
+   • css/style.css (styling)
+   • js/data.js (load data from APIs)
+   • js/main.js (interactivity)
+   ↓
+data.js calls:
+   • GET /api/services → displays services
+   • GET /api/projects → displays projects
+   • GET /api/gallery → displays gallery
+   ↓
+User fills consultation form
+   • POST /api/consultations → saved in data/consultations.json
+
+
+ADMIN ACCESSES: http://localhost:3000/admin/login.html
+   ↓
+admin/login.html displayed
+   ↓
+Admin enters credentials (admin/admin123)
+   ↓
+login.htrml POSTs to /api/auth/login
+   ↓
+server.js verifies credentials → creates session
+   ↓
+Redirects to admin/dashboard.html
+   ↓
+dashboard.js calls checkAuth() → verifies session
+   ↓
+dashboard.html displays admin interface
+   ↓
+Admin performs CRUD operations:
+   • GET /api/* (load data)
+   • POST /api/* (create new)
+   • PUT /api/:id (edit existing)
+   • DELETE /api/:id (remove item)
+   ↓
+server.js updates data/services.json, etc.
+   ↓
+User refreshes website → sees new content
+
+================================================================================

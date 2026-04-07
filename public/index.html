@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>African Genetics Engineering Limited | Electrical Engineering Consultancy</title>
+  <meta name="description" content="Professional electrical engineering consultancy, installation, and power system solutions across Ghana." />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+
+  <!-- ============================================================
+       FONTS — Poppins (headings) + Open Sans (body)
+  ============================================================ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVIGATION BAR
+  ============================================================ -->
+  <header class="navbar" id="navbar">
+    <div class="nav-container">
+      <!-- Logo -->
+      <a href="#home" class="nav-logo">
+        <img src="/logo.png" alt="AGEL Logo" class="logo-img">
+        <div class="logo-text">
+          <span class="logo-main">AGEL</span>
+          <span class="logo-sub">Engineering Solutions</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <nav class="nav-links" id="navLinks">
+        <a href="#home" class="nav-link active">Home</a>
+        <a href="#services" class="nav-link">Services</a>
+        <a href="#projects" class="nav-link">Projects</a>
+        <a href="#gallery" class="nav-link">Gallery</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#contact" class="nav-link">Contact</a>
+        <a href="#consultation" class="nav-cta-btn">Request Consultation</a>
+      </nav>
+
+      <!-- Mobile Menu Toggle -->
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       HERO SECTION
+  ============================================================ -->
+  <section class="hero" id="home">
+    <!-- Animated SVG power grid background -->
+    <div class="hero-bg">
+      <div class="hero-overlay"></div>
+      <div class="hero-grid-lines"></div>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Electrical Engineering Excellence in Ghana
+      </div>
+      <h1 class="hero-title">
+        Powering Innovation<br />
+        <span class="text-yellow">Through Electrical</span><br />
+        Engineering
+      </h1>
+      <p class="hero-subtitle">
+        Professional electrical engineering consultancy, installation,<br />
+        and power system solutions across Ghana.
+      </p>
+      <div class="hero-actions">
+        <a href="#consultation" class="btn btn-primary">
+          <i class="fas fa-paper-plane"></i> Request Consultation
+        </a>
+        <a href="#services" class="btn btn-outline">
+          <i class="fas fa-cogs"></i> Our Services
+        </a>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-num" id="heroStat1">50+</span>
+          <span class="stat-label" id="heroStat1Label">Projects Completed</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num" id="heroStat2">10+</span>
+          <span class="stat-label" id="heroStat2Label">Years Experience</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num" id="heroStat3">100%</span>
+          <span class="stat-label" id="heroStat3Label">Safety Compliance</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <a href="#services" class="scroll-down">
+      <span>Scroll Down</span>
+      <i class="fas fa-chevron-down"></i>
+    </a>
+  </section>
+
+  <!-- ============================================================
+       SERVICES SECTION
+  ============================================================ -->
+  <section class="section services-section" id="services">
+    <div class="container">
+      <!-- Section Header -->
+      <div class="section-header">
+        <span class="section-tag">What We Do</span>
+        <h2 class="section-title">Our <span class="text-yellow">Engineering</span> Services</h2>
+        <p class="section-desc">Comprehensive electrical engineering solutions built on safety, precision, and innovation.</p>
+      </div>
+
+      <!-- Services Grid — populated dynamically from data/services.json -->
+      <div class="services-grid" id="servicesGrid">
+        <!-- JS populates this -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PROJECTS / PORTFOLIO SECTION
+  ============================================================ -->
+  <section class="section projects-section" id="projects">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Our Work</span>
+        <h2 class="section-title">Featured <span class="text-yellow">Projects</span></h2>
+        <p class="section-desc">Engineering excellence delivered across industrial, commercial, and infrastructure sectors.</p>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-btn active" data-filter="all">All Projects</button>
+        <button class="filter-btn" data-filter="Industrial">Industrial</button>
+        <button class="filter-btn" data-filter="Commercial">Commercial</button>
+        <button class="filter-btn" data-filter="Infrastructure">Infrastructure</button>
+        <button class="filter-btn" data-filter="Maintenance">Maintenance</button>
+      </div>
+
+      <!-- Projects Grid — populated dynamically -->
+      <div class="projects-grid" id="projectsGrid">
+        <!-- JS populates this -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       IMAGE GALLERY SECTION
+  ============================================================ -->
+  <section class="section gallery-section" id="gallery">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Visual Portfolio</span>
+        <h2 class="section-title">Engineering <span class="text-yellow">Gallery</span></h2>
+        <p class="section-desc">A visual showcase of our electrical infrastructure and project work across Ghana.</p>
+      </div>
+
+      <!-- Gallery Grid — populated dynamically -->
+      <div class="gallery-grid" id="galleryGrid">
+        <!-- JS populates this -->
+      </div>
+    </div>
+
+    <!-- Lightbox modal -->
+    <div class="lightbox" id="lightbox">
+      <button class="lightbox-close" id="lightboxClose"><i class="fas fa-times"></i></button>
+      <img class="lightbox-img" id="lightboxImg" src="" alt="Gallery image" />
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ABOUT SECTION
+  ============================================================ -->
+  <section class="section about-section" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <!-- Left: Info -->
+        <div class="about-content">
+          <span class="section-tag">Who We Are</span>
+          <h2 class="section-title">About <span class="text-yellow">AGEL</span></h2>
+          <p class="about-intro">
+            African Genetics Engineering Limited provides professional electrical engineering consultancy,
+            installation, and maintenance services across Ghana. The company focuses on delivering safe,
+            reliable, and innovative power solutions for industries, businesses, and infrastructure projects.
+          </p>
+
+          <!-- Mission & Vision cards -->
+          <div class="mv-cards">
+            <div class="mv-card">
+              <div class="mv-icon"><i class="fas fa-crosshairs"></i></div>
+              <div>
+                <h4>Our Mission</h4>
+                <p>To deliver safe, reliable, and cutting-edge electrical engineering solutions that power Ghana's industrial and commercial growth.</p>
+              </div>
+            </div>
+            <div class="mv-card">
+              <div class="mv-icon"><i class="fas fa-eye"></i></div>
+              <div>
+                <h4>Our Vision</h4>
+                <p>To be West Africa's most trusted electrical engineering partner, setting new standards in power systems design and energy efficiency.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Leadership + highlights -->
+        <div class="about-right">
+          <!-- Leadership card -->
+          <div class="leadership-card">
+            <div class="leadership-icon" id="managerPhotoWrapper">
+              <img id="managerPhoto" src="/profile.png" alt="General Manager" />
+            </div>
+            <div class="leadership-info">
+              <h3 id="managerName">Reuben Akwafo Tswasam</h3>
+              <span class="leadership-role" id="managerRole">General Manager</span>
+              <p id="managerBio">Leading African Genetics Engineering Limited with deep expertise in power systems, industrial installations, and electrical consultancy across Ghana.</p>
+            </div>
+          </div>
+
+          <!-- Quick highlights -->
+          <div class="about-highlights">
+            <div class="highlight-item">
+              <i class="fas fa-shield-alt"></i>
+              <span>Safety First — All Projects</span>
+            </div>
+            <div class="highlight-item">
+              <i class="fas fa-certificate"></i>
+              <span>Licensed & Certified Engineers</span>
+            </div>
+            <div class="highlight-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>Community 25, Tema, Ghana</span>
+            </div>
+            <div class="highlight-item">
+              <i class="fas fa-phone"></i>
+              <span>0266903265 / 0592765066</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CONSULTATION FORM SECTION
+  ============================================================ -->
+  <section class="section consultation-section" id="consultation">
+    <div class="container">
+      <div class="consultation-wrapper">
+        <!-- Left info panel -->
+        <div class="consultation-info">
+          <span class="section-tag">Get In Touch</span>
+          <h2 class="section-title">Request a <span class="text-yellow">Consultation</span></h2>
+          <p>Fill in the form and our engineering team will contact you within 24 hours to discuss your project requirements.</p>
+          <ul class="consult-points">
+            <li><i class="fas fa-check-circle"></i> Free initial consultation</li>
+            <li><i class="fas fa-check-circle"></i> Expert engineers assigned to your project</li>
+            <li><i class="fas fa-check-circle"></i> Detailed project proposal & quote</li>
+            <li><i class="fas fa-check-circle"></i> Safety-compliant solutions</li>
+          </ul>
+        </div>
+
+        <!-- Right form -->
+        <div class="consultation-form-wrap">
+          <form class="consultation-form" id="consultationForm" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="clientName">Full Name *</label>
+                <input type="text" id="clientName" name="name" placeholder="John Mensah" required />
+              </div>
+              <div class="form-group">
+                <label for="clientCompany">Company Name</label>
+                <input type="text" id="clientCompany" name="company" placeholder="Your Company Ltd" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="clientEmail">Email Address *</label>
+                <input type="email" id="clientEmail" name="email" placeholder="you@example.com" required />
+              </div>
+              <div class="form-group">
+                <label for="clientPhone">Phone Number *</label>
+                <input type="tel" id="clientPhone" name="phone" placeholder="+233 XX XXX XXXX" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="serviceNeeded">Service Needed *</label>
+              <select id="serviceNeeded" name="service" required>
+                <option value="">-- Select a Service --</option>
+                <option>Electrical Engineering Consultancy</option>
+                <option>Power System Design</option>
+                <option>Industrial Electrical Installations</option>
+                <option>Power Distribution Systems</option>
+                <option>Electrical Maintenance and Repairs</option>
+                <option>Energy Efficiency Solutions</option>
+                <option>Electrical Safety Inspections</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="projectDesc">Project Description *</label>
+              <textarea id="projectDesc" name="description" rows="4" placeholder="Describe your project requirements..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">
+              <i class="fas fa-paper-plane"></i> Submit Consultation Request
+            </button>
+            <div class="form-msg" id="formMsg"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CONTACT SECTION
+  ============================================================ -->
+  <section class="section contact-section" id="contact">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Contact Us</span>
+        <h2 class="section-title">Find <span class="text-yellow">Us</span></h2>
+      </div>
+
+      <div class="contact-grid">
+        <!-- Contact Info Cards -->
+        <div class="contact-info">
+          <div class="contact-card">
+            <div class="contact-card-icon"><i class="fas fa-phone-alt"></i></div>
+            <div>
+              <h4>Phone</h4>
+              <a id="contactPhone1" href="tel:0266903265">0266903265</a>
+              <a id="contactPhone2" href="tel:0592765066">0592765066</a>
+            </div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-card-icon"><i class="fas fa-envelope"></i></div>
+            <div>
+              <h4>Email</h4>
+              <a id="contactEmail" href="mailto:afrigenegcon@gmail.com">afrigenegcon@gmail.com</a>
+            </div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-card-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <div>
+              <h4>Location</h4>
+              <p id="contactAddress">Community 25, Tema, Ghana</p>
+            </div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-card-icon"><i class="fas fa-clock"></i></div>
+            <div>
+              <h4>Working Hours</h4>
+              <p id="contactHours">Mon – Fri: 8:00 AM – 6:00 PM</p>
+            </div>
+          </div>
+          <div class="contact-card" id="qrCodeCard">
+            <div class="contact-card-icon"><i class="fas fa-qrcode"></i></div>
+            <div>
+              <h4>Scan QR Code</h4>
+              <img id="qrCodeImage" src="" alt="Website QR Code" style="max-width: 180px; display: none; border-radius: 12px; margin-top: 12px;" />
+              <p id="qrCodeFallback" class="text-muted">Upload a QR code image from admin settings to show it here.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Google Maps Embed -->
+        <div class="map-container">
+          <iframe
+            title="AGEL Office Location"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3970.9383!2d-0.0167!3d5.6438!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfdf9bc0e73aba85%3A0x4f44e3dc9c8bda7f!2sCommunity%2025%2C%20Tema%2C%20Ghana!5e0!3m2!1sen!2sgh!4v1710000000000"
+            width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="container footer-grid">
+        <!-- Brand -->
+        <div class="footer-brand">
+          <a href="#home" class="nav-logo">
+            <img src="/logo.png" alt="AGEL Logo" class="logo-img">
+            <div class="logo-text">
+              <span class="logo-main">AGEL</span>
+              <span class="logo-sub">African Genetics Engineering Ltd</span>
+            </div>
+          </a>
+          <p>Professional electrical engineering consultancy, installation, and power system solutions across Ghana.</p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="footer-col">
+          <h5>Quick Links</h5>
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#gallery">Gallery</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+
+        <!-- Services -->
+        <div class="footer-col">
+          <h5>Services</h5>
+          <ul>
+            <li><a href="#services">Engineering Consultancy</a></li>
+            <li><a href="#services">Power System Design</a></li>
+            <li><a href="#services">Industrial Installations</a></li>
+            <li><a href="#services">Power Distribution</a></li>
+            <li><a href="#services">Energy Efficiency</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact -->
+        <div class="footer-col">
+          <h5>Contact Info</h5>
+          <ul class="footer-contact-list">
+            <li><i class="fas fa-map-marker-alt"></i> <span id="footerAddress">Community 25, Tema, Ghana</span></li>
+            <li><i class="fas fa-phone"></i> <a id="footerPhone1" href="tel:02669003265">02669003265</a></li>
+            <li><i class="fas fa-phone"></i> <a id="footerPhone2" href="tel:0592765066">0592765066</a></li>
+            <li><i class="fas fa-envelope"></i> <a id="footerEmail" href="mailto:afrigenegcon@gmail.com">afrigenegcon@gmail.com</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Bottom bar -->
+    <div class="footer-bottom">
+      <div class="container footer-bottom-inner">
+        <p>&copy; <span id="footerYear"></span> African Genetics Engineering Limited. All Rights Reserved.</p>
+        <p class="footer-credit">
+          Website created by <a href="#" id="gdsLink" class="gds-highlight" target="_blank" rel="noopener">GALAXY DESIGN STUDIO (GDS)</a> |
+          <a href="tel:0556881003" class="gds-contact">Contact: 0556881003</a>
+        </p>
+        <!-- Invisible admin button -->
+        <button id="invisibleAdminBtn" class="invisible-admin-btn" title="Admin Portal" aria-label="Admin Portal"></button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       MAIN JAVASCRIPT
+  ============================================================ -->
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  
+  <!-- Invisible Admin Portal Button -->
+  <script>
+    // Click invisible button to go to admin
+    document.getElementById('invisibleAdminBtn').addEventListener('click', function() {
+      window.location.href = '/admin/login.html';
+    });
+    
+    // Keyboard shortcut: Ctrl+Shift+A to access admin portal
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.shiftKey && e.code === 'KeyA') {
+        e.preventDefault();
+        window.location.href = '/admin/login.html';
+      }
+    });
+    
+    // Triple-click footer year to access admin portal
+    document.getElementById('footerYear').addEventListener('dblclick', function() {
+      window.location.href = '/admin/login.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <title>Admin Login — AGEL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* ---- Reset & Base ---- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Animated background lines */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M0 60L60 0M-15 15L15-15M45 75L75 45' stroke='%23FFD000' stroke-width='0.3' opacity='0.06'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    /* ---- Login Card ---- */
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: #1c1c1c;
+      border: 1px solid rgba(255,208,0,0.12);
+      border-radius: 16px;
+      padding: 48px 40px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+    }
+
+    /* Logo */
+    .login-logo {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 32px;
+    }
+    .logo-icon {
+      width: 48px; height: 48px;
+      background: #FFD000;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; color: #0f0f0f;
+    }
+    .logo-text .logo-main { display: block; font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.2rem; }
+    .logo-text .logo-sub  { display: block; font-size: 0.62rem; color: #888; letter-spacing: 0.5px; }
+
+    /* Circular Logo */
+    .circular-logo {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #FFD000;
+      box-shadow: 0 4px 12px rgba(255, 208, 0, 0.3);
+    }
+    .logo-container {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    h2 { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+    .subtitle { color: #888; font-size: 0.88rem; margin-bottom: 32px; }
+
+    /* Form */
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 0.83rem; font-weight: 600; color: #ccc; margin-bottom: 8px; }
+    .input-wrap { position: relative; }
+    .input-wrap i {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: #555; font-size: 0.9rem;
+    }
+    .form-group input {
+      width: 100%; padding: 12px 16px 12px 40px;
+      background: #2a2a2a;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      color: #fff; font-size: 0.92rem;
+      outline: none; transition: border-color 0.3s;
+    }
+    .form-group input:focus { border-color: #FFD000; }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: #FFD000;
+      color: #0f0f0f;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      margin-top: 8px;
+    }
+    .btn-login:hover { background: #c9a400; transform: translateY(-2px); }
+
+    .google-login { margin-bottom: 24px; }
+    .btn-google {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      width: 100%; padding: 12px 16px;
+      background: #fff; color: #333;
+      border: 1px solid #ddd; border-radius: 8px;
+      text-decoration: none; font-weight: 500;
+      transition: all 0.3s; font-size: 0.9rem;
+    }
+    .btn-google:hover { background: #f8f8f8; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .btn-google i { color: #4285f4; }
+    .divider {
+      text-align: center; margin: 20px 0; position: relative;
+      color: #888; font-size: 0.85rem;
+    }
+    .divider::before {
+      content: ''; position: absolute; top: 50%; left: 0; right: 0;
+      height: 1px; background: rgba(255,255,255,0.1);
+    }
+    .divider span {
+      background: #1c1c1c; padding: 0 16px; position: relative; z-index: 1;
+    }
+
+    .error-msg { color: #E53935; font-size: 0.85rem; text-align: center; margin-top: 14px; min-height: 20px; }
+    .back-link { text-align: center; margin-top: 24px; }
+    .back-link a { color: #666; font-size: 0.82rem; transition: color 0.3s; }
+    .back-link a:hover { color: #FFD000; }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       ADMIN LOGIN CARD
+  ============================================================ -->
+  <div class="login-card">
+    <!-- Circular Company Logo -->
+    <div class="logo-container">
+      <img src="../logo.png" alt="AGEL Logo" class="circular-logo" />
+    </div>
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.1rem; color: #FFD000;">AGEL Admin</div>
+      <div style="font-size: 0.75rem; color: #888; letter-spacing: 0.5px;">African Genetics Engineering Ltd</div>
+    </div>
+
+    <h2>Sign In</h2>
+    <p class="subtitle">Access the admin control panel</p>
+
+    <!-- Google Login Button -->
+    <div class="google-login">
+      <a href="/auth/google" class="btn-google">
+        <i class="fab fa-google"></i>
+        Continue with Google
+      </a>
+      <div class="divider">
+        <span>or</span>
+      </div>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <div class="input-wrap">
+          <i class="fas fa-user"></i>
+          <input type="text" id="username" placeholder="AGEL" autocomplete="username" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" placeholder="Enter password" autocomplete="current-password" />
+        </div>
+      </div>
+      <button type="submit" class="btn-login">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </button>
+      <div class="error-msg" id="errorMsg"></div>
+    </form>
+
+    <div class="back-link"><a href="../index.html"><i class="fas fa-arrow-left"></i> Back to Website</a></div>
+  </div>
+
+  <!-- ============================================================
+       LOGIN SCRIPT — Server-side Authentication
+  ============================================================ -->
+  <script>
+    const form = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const btn = form.querySelector('.btn-login');
+
+    // Check if already authenticated
+    window.addEventListener('load', async () => {
+      try {
+        const res = await fetch('/api/auth/status');
+        const data = await res.json();
+        if (data.authenticated) {
+          window.location.href = 'dashboard.html';
+        }
+      } catch (err) {
+        console.log('Auth check failed');
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.textContent = '';
+
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (!username || !password) {
+        errorMsg.textContent = 'Please fill in all fields';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          window.location.href = 'dashboard.html';
+        } else {
+          errorMsg.textContent = data.error || 'Login failed';
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Connection error. Please check the server.';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+      }
+    });
+  </script>
+</body>
+</html>
