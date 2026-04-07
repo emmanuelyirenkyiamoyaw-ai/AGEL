@@ -954,6 +954,20 @@ input, textarea, select { font-family: var(--font-body); }
   .footer-bottom-inner { flex-direction: column; align-items: center; gap: 8px; text-align: center; }
   .footer-credit { font-size: 0.75rem; }
   .gds-highlight { font-size: 0.8rem; }
+  .container { padding: 0 16px; }
+  .section { padding: 60px 0; }
+  .hero-content { padding: 20px; }
+  .hero-title { font-size: 1.5rem; line-height: 1.1; }
+  .hero-subtitle { font-size: 0.85rem; }
+  .btn { padding: 12px 24px; font-size: 0.9rem; }
+  .services-grid { grid-template-columns: 1fr; gap: 24px; }
+  .projects-grid { grid-template-columns: 1fr; gap: 24px; }
+  .gallery-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
+  .about-grid { grid-template-columns: 1fr; gap: 32px; }
+  .contact-grid { grid-template-columns: 1fr; gap: 24px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+  .leadership-card { flex-direction: column; text-align: center; }
+  .leadership-info { margin-top: 16px; }
 }
 
 .leadership-icon img {
