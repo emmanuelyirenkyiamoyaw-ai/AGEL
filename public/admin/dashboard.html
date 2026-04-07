@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="../favicon.png" />
+  <title>AGEL Admin Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <div class="admin-container">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div style="display: flex; align-items: center; gap: 12px; justify-content: center;">
+          <img src="../logo.png" alt="AGEL" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #FFD000; object-fit: cover;" />
+          <h3 style="margin: 0; font-size: 1.1rem;"><i class="fas fa-bolt"></i> AGEL Admin</h3>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-tab="overview">
+          <i class="fas fa-chart-line"></i> Overview
+        </a>
+        <a href="#" class="nav-item" data-tab="services">
+          <i class="fas fa-cogs"></i> Services
+        </a>
+        <a href="#" class="nav-item" data-tab="projects">
+          <i class="fas fa-briefcase"></i> Projects
+        </a>
+        <a href="#" class="nav-item" data-tab="gallery">
+          <i class="fas fa-images"></i> Gallery
+        </a>
+        <a href="#" class="nav-item" data-tab="team">
+          <i class="fas fa-users"></i> Team
+        </a>
+        <a href="#" class="nav-item" data-tab="settings">
+          <i class="fas fa-sliders-h"></i> Settings
+        </a>
+        <a href="#" class="nav-item" data-tab="consultations">
+          <i class="fas fa-envelope"></i> Consultations
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-profile">
+          <img src="../profile.png" alt="Admin" class="profile-pic">
+          <span>Admin Manager</span>
+        </div>
+        <button id="logoutBtn" class="btn-logout">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="content-header">
+        <button id="sidebarToggle" class="sidebar-toggle" aria-label="Toggle sidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1 id="topbarTitle">Dashboard Overview</h1>
+        <div class="header-actions">
+          <span id="userInfo">Admin</span>
+        </div>
+      </header>
+      <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+      <!-- Tab Contents -->
+      <div class="tab-contents">
+
+        <!-- OVERVIEW TAB -->
+        <div id="tab-overview" class="tab-content active">
+          <div class="stats-grid" id="statsRow">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-cogs"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Total Services</div>
+                <div class="stat-value" id="totalServices">0</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-briefcase"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Total Projects</div>
+                <div class="stat-value" id="totalProjects">0</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-images"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Gallery Items</div>
+                <div class="stat-value" id="totalGallery">0</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Consultations</div>
+                <div class="stat-value" id="totalConsultations">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="recent-section">
+            <h3>Recent Consultations</h3>
+            <div id="recentConsultations">
+              <div class="loading">
+                <i class="fas fa-spinner"></i>
+                Loading recent consultations...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SERVICES TAB -->
+        <div id="tab-services" class="tab-content">
+          <div class="tab-header">
+            <h2>Services Management</h2>
+            <button class="btn-primary" id="addServiceBtn">
+              <i class="fas fa-plus"></i> Add Service
+            </button>
+          </div>
+
+          <div class="data-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Icon</th>
+                  <th>Title</th>
+                  <th>Description</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="servicesTbody">
+                <tr>
+                  <td colspan="4" class="loading">
+                    <i class="fas fa-spinner"></i>
+                    Loading services...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PROJECTS TAB -->
+        <div id="tab-projects" class="tab-content">
+          <div class="tab-header">
+            <h2>Projects Management</h2>
+            <button class="btn-primary" id="addProjectBtn">
+              <i class="fas fa-plus"></i> Add Project
+            </button>
+          </div>
+
+          <div class="data-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Description</th>
+                  <th>Category</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="projectsTbody">
+                <tr>
+                  <td colspan="4" class="loading">
+                    <i class="fas fa-spinner"></i>
+                    Loading projects...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- GALLERY TAB -->
+        <div id="tab-gallery" class="tab-content">
+          <div class="tab-header">
+            <h2>Gallery Management</h2>
+            <button class="btn-primary" id="addGalleryBtn">
+              <i class="fas fa-plus"></i> Add Item
+            </button>
+          </div>
+
+          <div class="gallery-grid" id="galleryAdminGrid">
+            <div class="loading">
+              <i class="fas fa-spinner"></i>
+              Loading gallery...
+            </div>
+          </div>
+        </div>
+
+        <!-- TEAM TAB -->
+        <div id="tab-team" class="tab-content">
+          <div class="tab-header">
+            <h2>Team Members</h2>
+            <button class="btn-primary" id="addTeamBtn">
+              <i class="fas fa-plus"></i> Add Member
+            </button>
+          </div>
+
+          <div class="data-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Photo</th>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="teamTbody">
+                <tr>
+                  <td colspan="6" class="loading">
+                    <i class="fas fa-spinner"></i>
+                    Loading team...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SETTINGS TAB -->
+        <div id="tab-settings" class="tab-content">
+          <div class="tab-header">
+            <h2>Site Settings</h2>
+          </div>
+
+          <div class="settings-panel">
+            <form id="settingsForm">
+              <div class="settings-grid">
+                <div class="form-group">
+                  <label>Primary Phone</label>
+                  <input type="text" id="settingsPhone1" placeholder="0266903265" />
+                </div>
+                <div class="form-group">
+                  <label>Secondary Phone</label>
+                  <input type="text" id="settingsPhone2" placeholder="0592765066" />
+                </div>
+                <div class="form-group">
+                  <label>Contact Email</label>
+                  <input type="email" id="settingsEmail" placeholder="afrigenegcon@gmail.com" />
+                </div>
+                <div class="form-group">
+                  <label>Office Address</label>
+                  <input type="text" id="settingsAddress" placeholder="Community 25, Tema, Ghana" />
+                </div>
+                <div class="form-group">
+                  <label>Working Hours</label>
+                  <input type="text" id="settingsHours" placeholder="Mon – Fri: 8:00 AM – 6:00 PM | Sat: 9:00 AM – 2:00 PM" />
+                </div>
+                <div class="form-group">
+                  <label>Admin Username</label>
+                  <input type="text" id="settingsAdminUsername" placeholder="AGEL" autocomplete="username" />
+                </div>
+                <div class="form-group">
+                  <label>New Admin Password</label>
+                  <input type="password" id="settingsNewPassword" placeholder="Leave blank to keep current password" autocomplete="new-password" />
+                </div>
+                <div class="form-group">
+                  <label>Confirm New Password</label>
+                  <input type="password" id="settingsConfirmPassword" placeholder="Confirm new password" autocomplete="new-password" />
+                </div>
+                <div class="form-group">
+                  <label>Galaxy Designs Website</label>
+                  <input type="url" id="settingsGDSLink" placeholder="https://galaxydesignsstudio.com" />
+                </div>
+                <div class="form-group full-width">
+                  <label>QR Code Image</label>
+                  <input type="file" id="settingsQrFile" accept="image/*" />
+                  <div id="settingsQrPreview" class="image-preview"></div>
+                </div>
+              </div>
+              <div class="modal-actions settings-actions">
+                <button type="button" class="btn" onclick="refreshDashboard()">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Settings</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- CONSULTATIONS TAB -->
+        <div id="tab-consultations" class="tab-content">
+          <div class="tab-header">
+            <h2>Consultation Requests</h2>
+          </div>
+
+          <div class="data-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Name</th>
+                  <th>Company</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Service</th>
+                  <th>Description</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="consultationsTbody">
+                <tr>
+                  <td colspan="8" class="loading">
+                    <i class="fas fa-spinner"></i>
+                    Loading consultations...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="noConsultations" class="empty-state" style="display: none;">
+            <i class="fas fa-inbox"></i>
+            <p>No consultation requests yet.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">Modal Title</h2>
+        <button class="btn-close" id="closeModal">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Service Form -->
+        <form id="serviceForm" style="display: none;">
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="serviceTitle" required>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="serviceDesc" rows="4" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Icon (Font Awesome)</label>
+            <input type="text" id="serviceIcon" placeholder="fas fa-cogs" value="fas fa-bolt">
+          </div>
+          <button type="submit" class="btn-primary">Save Service</button>
+        </form>
+
+        <!-- Project Form -->
+        <form id="projectForm" style="display: none;">
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="projectTitle" required>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="projectDesc" rows="4" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="projectCategory">
+              <option value="Industrial">Industrial</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Infrastructure">Infrastructure</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Image URL</label>
+            <input type="text" id="projectImg" placeholder="https://...">
+          </div>
+          <button type="submit" class="btn-primary">Save Project</button>
+        </form>
+
+        <!-- Gallery Form -->
+        <form id="galleryForm" style="display: none;">
+          <div class="form-group">
+            <label>Label</label>
+            <input type="text" id="galleryLabel" required>
+          </div>
+          <div class="form-group">
+            <label>URL</label>
+            <input type="text" id="galleryUrl" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label>Icon</label>
+            <input type="text" id="galleryIcon" placeholder="fas fa-image" value="fas fa-image">
+          </div>
+          <button type="submit" class="btn-primary">Save Item</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

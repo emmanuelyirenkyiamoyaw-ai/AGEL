@@ -61,7 +61,7 @@ const AGEL_DATA = {
       { id: 6, label: "Safety Inspection",              url: "", icon: "fas fa-shield-alt" }
     ];
     this.team = [
-      { id: 1, name: "Reuben Akwafo Tswasam", role: "General Manager", bio: "Leading African Genetics Engineering Limited with deep expertise in power systems, industrial installations, and electrical consultancy across Ghana.", phone: "0266903265", email: "afrigenegcon@gmail.com", img: "/profile.png" }
+      { id: 1, name: "Reuben Akwafo Tswasam", role: "General Manager", bio: "Leading African Genetics Engineering Limited with deep expertise in power systems, industrial installations, and electrical consultancy across Ghana.", phone: "0266903265", email: "afrigenegcon@gmail.com", img: "profile.png" }
     ];
     this.settings = {
       companyPhone1: "0266903265",
