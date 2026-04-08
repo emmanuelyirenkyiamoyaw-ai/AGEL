@@ -133,8 +133,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASS || 'agel@26';
 /* ---- Google OAuth Configuration ---- */
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'your-google-client-id';
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || 'your-google-client-secret';
-const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL
-  || (process.env.RENDER_EXTERNAL_URL ? `https://${process.env.RENDER_EXTERNAL_URL}/auth/google/callback` : `http://localhost:${PORT}/auth/google/callback`);
+// callbackURL is now dynamic using 'proxy: true' below
 
 /* ---- Middleware ---- */
 app.use(cors());
@@ -167,7 +166,8 @@ passport.deserializeUser((user, done) => {
 passport.use(new GoogleStrategy({
     clientID: GOOGLE_CLIENT_ID,
     clientSecret: GOOGLE_CLIENT_SECRET,
-    callbackURL: GOOGLE_CALLBACK_URL
+    callbackURL: "/auth/google/callback",
+    proxy: true
   },
   (accessToken, refreshToken, profile, done) => {
     // Store Google profile info
