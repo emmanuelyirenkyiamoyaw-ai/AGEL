@@ -127,8 +127,8 @@ async function sendConsultationNotification(entry, emails) {
 }
 
 /* ---- Admin Credentials (for production, use environment variables) ---- */
-const ADMIN_USERNAME = process.env.ADMIN_USER || 'AGEL';
-const ADMIN_PASSWORD = process.env.ADMIN_PASS || 'agel@26';
+const ADMIN_USERNAME = (process.env.ADMIN_USER || 'AGEL').trim();
+const ADMIN_PASSWORD = (process.env.ADMIN_PASS || 'agel@26').trim();
 
 /* ---- Google OAuth Configuration ---- */
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'your-google-client-id';
@@ -147,7 +147,8 @@ app.use(session({
   saveUninitialized: true,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'none',
+    // 'none' sameSite requires secure: true. For local dev, use 'lax'.
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000
   }
 }));
@@ -287,10 +288,10 @@ async function writeData(key, data) {
 
 async function getStoredAdminCredentials() {
   const authData = await readData('auth');
-  return {
-    username: authData.adminUsername || ADMIN_USERNAME,
-    password: authData.adminPassword || ADMIN_PASSWORD
-  };
+  // authData might be the default [] from readData if not found, check accordingly
+  const username = (authData && authData.adminUsername) ? authData.adminUsername : ADMIN_USERNAME;
+  const password = (authData && authData.adminPassword) ? authData.adminPassword : ADMIN_PASSWORD;
+  return { username, password };
 }
 
 async function updateStoredAdminCredentials({ adminUsername, adminPassword }) {
@@ -337,7 +338,10 @@ app.post('/api/auth/verify-password', async (req, res) => {
   }
 
   const adminCreds = await getStoredAdminCredentials();
-  if (username === adminCreds.username && password === adminCreds.password) {
+  const inputUser = (username || '').toLowerCase().trim();
+  const storedUser = (adminCreds.username || '').toLowerCase().trim();
+
+  if (inputUser === storedUser && password === adminCreds.password) {
     req.session.admin = true;
     req.session.googleVerified = true;
     res.json({ success: true, message: 'Authentication successful' });
@@ -354,11 +358,20 @@ app.post('/api/auth/login', async (req, res) => {
   }
 
   const adminCreds = await getStoredAdminCredentials();
-  if (username === adminCreds.username && password === adminCreds.password) {
+  const inputUser = (username || '').toLowerCase().trim();
+  const storedUser = (adminCreds.username || '').toLowerCase().trim();
+
+  // Logging for diagnostics (remove in final production)
+  console.log(`🔑 Login attempt for: ${username}`);
+
+  if (inputUser === storedUser && password === adminCreds.password) {
     req.session.admin = true;
-    req.session.googleVerified = true;
+    // We mark it as googleVerified too so the UI doesn't get confused
+    req.session.googleVerified = true; 
+    console.log(`✅ Login successful for: ${username}`);
     res.json({ success: true, message: 'Login successful' });
   } else {
+    console.warn(`❌ Login failed for: ${username} (Expected: ${adminCreds.username})`);
     res.status(401).json({ error: 'Invalid credentials' });
   }
 });
