@@ -133,7 +133,8 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASS || 'agel@26';
 /* ---- Google OAuth Configuration ---- */
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'your-google-client-id';
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || 'your-google-client-secret';
-const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || "/auth/google/callback";
+const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL 
+  || (process.env.RENDER_EXTERNAL_URL ? `https://${process.env.RENDER_EXTERNAL_URL.replace(/^https?:\/\//, '')}/auth/google/callback` : "/auth/google/callback");
 
 /* ---- Middleware ---- */
 app.use(cors());
@@ -737,5 +738,5 @@ app.listen(PORT, async () => {
   console.log(`   Website: http://localhost:${PORT}`);
   console.log(`   Admin:   http://localhost:${PORT}/admin/login.html`);
   console.log(`   Admin Username: ${adminCreds.username}`);
-  console.log(`   Google Callback: ${GOOGLE_CALLBACK_URL === "/auth/google/callback" ? `(Dynamic) http://localhost:${PORT}/auth/google/callback` : GOOGLE_CALLBACK_URL}\n`);
+  console.log(`   Google Callback: ${GOOGLE_CALLBACK_URL.startsWith('/') ? `(Dynamic) http://localhost:${PORT}${GOOGLE_CALLBACK_URL}` : GOOGLE_CALLBACK_URL}\n`);
 });
