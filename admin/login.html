@@ -307,14 +307,7 @@
         if (res.ok) {
           window.location.href = 'dashboard.html';
         } else {
-          // If server says Google is required, highlight that
-          if (data.requireGoogle) {
-            errorMsg.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${data.error}. <br><strong>Please use the Google button above.</strong>`;
-            document.querySelector('.btn-google').style.boxShadow = '0 0 15px rgba(255, 208, 0, 0.5)';
-            document.querySelector('.btn-google').style.borderColor = '#FFD000';
-          } else {
-            errorMsg.textContent = data.error || 'Login failed';
-          }
+          errorMsg.textContent = data.error || 'Login failed';
           btn.disabled = false;
           btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
         }

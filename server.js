@@ -346,16 +346,8 @@ app.post('/api/auth/verify-password', async (req, res) => {
   }
 });
 
-// Admin Login (Modified to require Google Auth first)
+// Admin Login (Direct Credential Login)
 app.post('/api/auth/login', async (req, res) => {
-  if (!req.session.googleAuth) {
-    return res.status(401).json({ 
-      error: 'Access Denied', 
-      details: 'For security, you must log in with Google first.',
-      requireGoogle: true 
-    });
-  }
-
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'Username and password required.' });
