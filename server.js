@@ -18,6 +18,7 @@ const multer   = require('multer');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const nodemailer = require('nodemailer');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 const app  = express();
@@ -59,6 +60,26 @@ function parseNotificationEmailList(value) {
     .map(v => v.trim())
     .filter(Boolean);
 }
+
+/* ================================================================
+   DATABASE CONNECTION (MONGODB)
+================================================================ */
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/agel_db';
+
+mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 5000 })
+  .then(() => console.log('📦 Connected to MongoDB for persistent storage'))
+  .catch(err => {
+    console.error('❌ MongoDB Connection Error:', err.message);
+    console.warn('⚠️  WARNING: Data persistence is DISABLED because MongoDB is unavailable.');
+    console.warn('   The app will use local JSON files/defaults, but changes WILL NOT persist on Render.');
+  });
+
+const dataSchema = new mongoose.Schema({
+  key: { type: String, required: true, unique: true },
+  value: { type: mongoose.Schema.Types.Mixed, required: true }
+}, { timestamps: true });
+
+const DataRecord = mongoose.model('DataRecord', dataSchema);
 
 function getNotificationEmails(settings) {
   if (!settings) return [];
@@ -212,59 +233,72 @@ function requireAuth(req, res, next) {
 /* ================================================================
    DATA HELPERS — read/write JSON files in /data/
 ================================================================ */
-function readData(file) {
-  const fp = path.join(dataDir, file);
-  if (!fs.existsSync(fp)) return [];
+async function readData(key) {
   try {
-    return JSON.parse(fs.readFileSync(fp, 'utf-8'));
-  } catch {
+    const record = await DataRecord.findOne({ key });
+    if (record) return record.value;
+    
+    // Fallback to JSON migration if MongoDB is empty
+    const file = key.endsWith('.json') ? key : `${key}.json`;
+    const fp = path.join(dataDir, file);
+    if (fs.existsSync(fp)) {
+      const data = JSON.parse(fs.readFileSync(fp, 'utf-8'));
+      console.log(`🚚 Migrating ${key} from JSON to MongoDB...`);
+      await writeData(key, data);
+      return data;
+    }
+    return [];
+  } catch (err) {
+    console.error(`Read error for ${key}:`, err.message);
+    // Silent fallback to local JSON for migration path
+    const file = key.endsWith('.json') ? key : `${key}.json`;
+    const fp = path.join(dataDir, file);
+    if (fs.existsSync(fp)) {
+      return JSON.parse(fs.readFileSync(fp, 'utf-8'));
+    }
     return [];
   }
 }
 
-function writeData(file, data) {
-  const fp = path.join(dataDir, file);
+async function writeData(key, data) {
   try {
-    const json = JSON.stringify(data, null, 2);
-    fs.writeFileSync(fp, json, 'utf-8');
-    console.log(`💾 Data saved successfully to ${file} (${json.length} bytes)`);
+    await DataRecord.findOneAndUpdate(
+      { key },
+      { value: data },
+      { upsert: true, new: true }
+    );
+    console.log(`💾 Saved ${key} to MongoDB`);
     return true;
   } catch (err) {
-    console.error(`❌ CRITICAL ERROR writing to ${file}:`, err.message);
+    console.error(`Write error for ${key}:`, err.message);
+    // Partial fallback: still write to JSON in dev if Mongo fails
+    if (process.env.NODE_ENV !== 'production') {
+      const file = key.endsWith('.json') ? key : `${key}.json`;
+      const fp = path.join(dataDir, file);
+      fs.writeFileSync(fp, JSON.stringify(data, null, 2), 'utf-8');
+      console.log(`📡 Fallback: Saved ${key} to local JSON`);
+    }
     return false;
   }
 }
 
-// Seed default data if not present
-Object.entries({
-  'services.json': require('./data/seed_services.json'),
-  'projects.json': require('./data/seed_projects.json'),
-  'gallery.json':  [],
-  'consultations.json': [],
-  'team.json': require('./data/seed_team.json'),
-  'settings.json': require('./data/seed_settings.json'),
-  'auth.json': require('./data/seed_auth.json')
-}).forEach(([file, defaultData]) => {
-  const fp = path.join(dataDir, file);
-  if (!fs.existsSync(fp)) writeData(file, defaultData);
-});
+// Database initialization will happen lazily on first access via readData
 
-function getStoredAdminCredentials() {
-  const authFile = path.join(dataDir, 'auth.json');
-  const authData = fs.existsSync(authFile) ? readData('auth.json') : {};
+async function getStoredAdminCredentials() {
+  const authData = await readData('auth');
   return {
     username: authData.adminUsername || ADMIN_USERNAME,
     password: authData.adminPassword || ADMIN_PASSWORD
   };
 }
 
-function updateStoredAdminCredentials({ adminUsername, adminPassword }) {
-  const current = getStoredAdminCredentials();
+async function updateStoredAdminCredentials({ adminUsername, adminPassword }) {
+  const current = await getStoredAdminCredentials();
   const updated = {
     adminUsername: adminUsername || current.username,
     adminPassword: adminPassword || current.password
   };
-  writeData('auth.json', updated);
+  await writeData('auth', updated);
   return updated;
 }
 
@@ -294,33 +328,42 @@ app.get('/auth/google/callback',
 );
 
 // Password verification after Google auth
-app.post('/api/auth/verify-password', (req, res) => {
-  const { password } = req.body;
+app.post('/api/auth/verify-password', async (req, res) => {
+  const { username, password } = req.body;
 
   if (!req.session.googleAuth) {
     return res.status(401).json({ error: 'Google authentication required first' });
   }
 
-  const adminCreds = getStoredAdminCredentials();
-  if (password === adminCreds.password) {
+  const adminCreds = await getStoredAdminCredentials();
+  if (username === adminCreds.username && password === adminCreds.password) {
     req.session.admin = true;
     req.session.googleVerified = true;
     res.json({ success: true, message: 'Authentication successful' });
   } else {
-    res.status(401).json({ error: 'Invalid admin password' });
+    res.status(401).json({ error: 'Invalid admin username or password' });
   }
 });
 
-// Admin Login
-app.post('/api/auth/login', (req, res) => {
+// Admin Login (Modified to require Google Auth first)
+app.post('/api/auth/login', async (req, res) => {
+  if (!req.session.googleAuth) {
+    return res.status(401).json({ 
+      error: 'Access Denied', 
+      details: 'For security, you must log in with Google first.',
+      requireGoogle: true 
+    });
+  }
+
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'Username and password required.' });
   }
-  const adminCreds = getStoredAdminCredentials();
+
+  const adminCreds = await getStoredAdminCredentials();
   if (username === adminCreds.username && password === adminCreds.password) {
     req.session.admin = true;
-    req.session.googleVerified = false; // Not using Google auth
+    req.session.googleVerified = true;
     res.json({ success: true, message: 'Login successful' });
   } else {
     res.status(401).json({ error: 'Invalid credentials' });
@@ -352,26 +395,26 @@ app.get('/api/auth/google-info', (req, res) => {
   res.json(req.session.googleAuth);
 });
 
-app.get('/api/auth/credentials', requireAuth, (req, res) => {
-  const adminCreds = getStoredAdminCredentials();
+app.get('/api/auth/credentials', requireAuth, async (req, res) => {
+  const adminCreds = await getStoredAdminCredentials();
   res.json({ adminUsername: adminCreds.username });
 });
 
-app.put('/api/auth/credentials', requireAuth, (req, res) => {
+app.put('/api/auth/credentials', requireAuth, async (req, res) => {
   const { adminUsername, adminPassword } = req.body;
   if (!adminUsername && !adminPassword) {
     return res.status(400).json({ error: 'No credentials provided.' });
   }
-  const updated = updateStoredAdminCredentials({ adminUsername, adminPassword });
+  const updated = await updateStoredAdminCredentials({ adminUsername, adminPassword });
   res.json({ success: true, adminUsername: updated.adminUsername });
 });
 
-app.post('/api/auth/credentials', requireAuth, (req, res) => {
+app.post('/api/auth/credentials', requireAuth, async (req, res) => {
   const { adminUsername, adminPassword } = req.body;
   if (!adminUsername && !adminPassword) {
     return res.status(400).json({ error: 'No credentials provided.' });
   }
-  const updated = updateStoredAdminCredentials({ adminUsername, adminPassword });
+  const updated = await updateStoredAdminCredentials({ adminUsername, adminPassword });
   res.json({ success: true, adminUsername: updated.adminUsername });
 });
 
@@ -380,13 +423,13 @@ app.post('/api/auth/credentials', requireAuth, (req, res) => {
 ================================================================ */
 
 // Submit a new consultation request (public)
-app.post('/api/consultations', (req, res) => {
+app.post('/api/consultations', async (req, res) => {
   // If array, this is admin bulk update (requires auth)
   if (Array.isArray(req.body)) {
     if (!req.session.admin) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    writeData('consultations.json', req.body);
+    await writeData('consultations', req.body);
     res.json({ success: true, message: 'Consultations updated' });
     return;
   }
@@ -400,16 +443,16 @@ app.post('/api/consultations', (req, res) => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: 'Invalid email format.' });
   }
-  const consultations = readData('consultations.json');
+  const consultations = await readData('consultations');
   const entry = {
     id: Date.now(),
     date: new Date().toLocaleString(),
     name, company: company || '', email, phone, service, description
   };
   consultations.unshift(entry);
-  writeData('consultations.json', consultations);
+  await writeData('consultations', consultations);
 
-  const settings = readData('settings.json');
+  const settings = await readData('settings');
   const notificationEmails = getNotificationEmails(settings);
   if (notificationEmails.length) {
     sendConsultationNotification(entry, notificationEmails)
@@ -420,15 +463,15 @@ app.post('/api/consultations', (req, res) => {
 });
 
 // Get all consultation requests (admin)
-app.get('/api/consultations', requireAuth, (req, res) => {
-  res.json(readData('consultations.json'));
+app.get('/api/consultations', requireAuth, async (req, res) => {
+  res.json(await readData('consultations'));
 });
 
 // Delete a consultation (admin)
-app.delete('/api/consultations/:id', requireAuth, (req, res) => {
+app.delete('/api/consultations/:id', requireAuth, async (req, res) => {
   const id   = Number(req.params.id);
-  const data = readData('consultations.json').filter(c => c.id !== id);
-  writeData('consultations.json', data);
+  const data = (await readData('consultations')).filter(c => c.id !== id);
+  await writeData('consultations', data);
   res.json({ success: true });
 });
 
@@ -436,21 +479,21 @@ app.delete('/api/consultations/:id', requireAuth, (req, res) => {
    API ROUTES — SERVICES
 ================================================================ */
 
-app.get('/api/services', (req, res) => {
-  res.json(readData('services.json'));
+app.get('/api/services', async (req, res) => {
+  res.json(await readData('services'));
 });
 
-app.post('/api/services', requireAuth, (req, res) => {
+app.post('/api/services', requireAuth, async (req, res) => {
   // Handle both single item creation and bulk array updates
   if (Array.isArray(req.body)) {
     // Bulk update: POST array replaces all services
-    writeData('services.json', req.body);
+    await writeData('services', req.body);
     res.json({ success: true, message: 'Services updated' });
   } else {
     // Single item creation
     const { title, desc, icon } = req.body;
     if (!title || !desc) return res.status(400).json({ error: 'Title and description required.' });
-    const items = readData('services.json');
+    const items = await readData('services');
     const item  = { 
       id: items.length ? Math.max(...items.map(i=>i.id)) + 1 : 1, 
       title, 
@@ -458,25 +501,26 @@ app.post('/api/services', requireAuth, (req, res) => {
       icon: icon || 'fas fa-bolt' 
     };
     items.push(item);
-    writeData('services.json', items);
+    await writeData('services', items);
     res.json({ success: true, item });
   }
 });
 
-app.put('/api/services/:id', requireAuth, (req, res) => {
+app.put('/api/services/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   const { title, desc, icon } = req.body;
   if (!title || !desc) return res.status(400).json({ error: 'Title and description required.' });
-  const items = readData('services.json').map(s => 
+  const items = (await readData('services')).map(s => 
     s.id === id ? { ...s, title, desc, icon: icon || s.icon, id } : s
   );
-  writeData('services.json', items);
+  await writeData('services', items);
   res.json({ success: true });
 });
 
-app.delete('/api/services/:id', requireAuth, (req, res) => {
+app.delete('/api/services/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
-  writeData('services.json', readData('services.json').filter(s => s.id !== id));
+  const items = (await readData('services')).filter(s => s.id !== id);
+  await writeData('services', items);
   res.json({ success: true });
 });
 
@@ -484,21 +528,21 @@ app.delete('/api/services/:id', requireAuth, (req, res) => {
    API ROUTES — PROJECTS
 ================================================================ */
 
-app.get('/api/projects', (req, res) => {
-  res.json(readData('projects.json'));
+app.get('/api/projects', async (req, res) => {
+  res.json(await readData('projects'));
 });
 
-app.post('/api/projects', requireAuth, (req, res) => {
+app.post('/api/projects', requireAuth, async (req, res) => {
   // Handle both single item creation and bulk array updates
   if (Array.isArray(req.body)) {
     // Bulk update: POST array replaces all projects
-    writeData('projects.json', req.body);
+    await writeData('projects', req.body);
     res.json({ success: true, message: 'Projects updated' });
   } else {
     // Single item creation
     const { title, desc, category, img } = req.body;
     if (!title || !desc) return res.status(400).json({ error: 'Title and description required.' });
-    const items = readData('projects.json');
+    const items = await readData('projects');
     const item  = { 
       id: items.length ? Math.max(...items.map(i=>i.id)) + 1 : 1, 
       title, 
@@ -507,25 +551,26 @@ app.post('/api/projects', requireAuth, (req, res) => {
       img: img || '' 
     };
     items.push(item);
-    writeData('projects.json', items);
+    await writeData('projects', items);
     res.json({ success: true, item });
   }
 });
 
-app.put('/api/projects/:id', requireAuth, (req, res) => {
+app.put('/api/projects/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   const { title, desc, category, img } = req.body;
   if (!title || !desc) return res.status(400).json({ error: 'Title and description required.' });
-  const items = readData('projects.json').map(p => 
+  const items = (await readData('projects')).map(p => 
     p.id === id ? { ...p, title, desc, category: category || p.category, img: img || p.img, id } : p
   );
-  writeData('projects.json', items);
+  await writeData('projects', items);
   res.json({ success: true });
 });
 
-app.delete('/api/projects/:id', requireAuth, (req, res) => {
+app.delete('/api/projects/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
-  writeData('projects.json', readData('projects.json').filter(p => p.id !== id));
+  const items = (await readData('projects')).filter(p => p.id !== id);
+  await writeData('projects', items);
   res.json({ success: true });
 });
 
@@ -533,21 +578,21 @@ app.delete('/api/projects/:id', requireAuth, (req, res) => {
    API ROUTES — GALLERY
 ================================================================ */
 
-app.get('/api/gallery', (req, res) => {
-  res.json(readData('gallery.json'));
+app.get('/api/gallery', async (req, res) => {
+  res.json(await readData('gallery'));
 });
 
-app.post('/api/gallery', requireAuth, (req, res) => {
+app.post('/api/gallery', requireAuth, async (req, res) => {
   // Handle both single item creation and bulk array updates
   if (Array.isArray(req.body)) {
     // Bulk update: POST array replaces all gallery items
-    writeData('gallery.json', req.body);
+    await writeData('gallery', req.body);
     res.json({ success: true, message: 'Gallery updated' });
   } else {
     // Single item creation
     const { label, url, icon } = req.body;
     if (!label) return res.status(400).json({ error: 'Label required.' });
-    const items = readData('gallery.json');
+    const items = await readData('gallery');
     const item  = { 
       id: items.length ? Math.max(...items.map(i=>i.id)) + 1 : 1, 
       label, 
@@ -555,25 +600,26 @@ app.post('/api/gallery', requireAuth, (req, res) => {
       icon: icon || 'fas fa-image' 
     };
     items.push(item);
-    writeData('gallery.json', items);
+    await writeData('gallery', items);
     res.json({ success: true, item });
   }
 });
 
-app.put('/api/gallery/:id', requireAuth, (req, res) => {
+app.put('/api/gallery/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   const { label, url, icon } = req.body;
   if (!label) return res.status(400).json({ error: 'Label required.' });
-  const items = readData('gallery.json').map(g => 
+  const items = (await readData('gallery')).map(g => 
     g.id === id ? { ...g, label, url: url || g.url, icon: icon || g.icon, id } : g
   );
-  writeData('gallery.json', items);
+  await writeData('gallery', items);
   res.json({ success: true });
 });
 
-app.delete('/api/gallery/:id', requireAuth, (req, res) => {
+app.delete('/api/gallery/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
-  writeData('gallery.json', readData('gallery.json').filter(g => g.id !== id));
+  const items = (await readData('gallery')).filter(g => g.id !== id);
+  await writeData('gallery', items);
   res.json({ success: true });
 });
 
@@ -581,14 +627,14 @@ app.delete('/api/gallery/:id', requireAuth, (req, res) => {
    API ROUTES — TEAM
 ================================================================ */
 
-app.get('/api/team', (req, res) => {
-  res.json(readData('team.json'));
+app.get('/api/team', async (req, res) => {
+  res.json(await readData('team'));
 });
 
-app.post('/api/team', requireAuth, (req, res) => {
+app.post('/api/team', requireAuth, async (req, res) => {
   const { name, role, bio, phone, email, img } = req.body;
   if (!name || !role) return res.status(400).json({ error: 'Name and role required.' });
-  const items = readData('team.json');
+  const items = await readData('team');
   const item = {
     id: items.length ? Math.max(...items.map(i => i.id)) + 1 : 1,
     name,
@@ -599,24 +645,25 @@ app.post('/api/team', requireAuth, (req, res) => {
     img: img || ''
   };
   items.push(item);
-  writeData('team.json', items);
+  await writeData('team', items);
   res.json({ success: true, item });
 });
 
-app.put('/api/team/:id', requireAuth, (req, res) => {
+app.put('/api/team/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   const { name, role, bio, phone, email, img } = req.body;
   if (!name || !role) return res.status(400).json({ error: 'Name and role required.' });
-  const items = readData('team.json').map(member =>
+  const items = (await readData('team')).map(member =>
     member.id === id ? { ...member, name, role, bio: bio || member.bio, phone: phone || member.phone, email: email || member.email, img: img || member.img, id } : member
   );
-  writeData('team.json', items);
+  await writeData('team', items);
   res.json({ success: true });
 });
 
-app.delete('/api/team/:id', requireAuth, (req, res) => {
+app.delete('/api/team/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
-  writeData('team.json', readData('team.json').filter(member => member.id !== id));
+  const items = (await readData('team')).filter(member => member.id !== id);
+  await writeData('team', items);
   res.json({ success: true });
 });
 
@@ -624,15 +671,15 @@ app.delete('/api/team/:id', requireAuth, (req, res) => {
    API ROUTES — SETTINGS
 ================================================================ */
 
-app.get('/api/settings', (req, res) => {
-  res.json(readData('settings.json'));
+app.get('/api/settings', async (req, res) => {
+  res.json(await readData('settings'));
 });
 
-app.put('/api/settings', requireAuth, (req, res) => {
+app.put('/api/settings', requireAuth, async (req, res) => {
   const updates = req.body;
-  const current = readData('settings.json');
+  const current = await readData('settings');
   const updated = { ...current, ...updates };
-  writeData('settings.json', updated);
+  await writeData('settings', updated);
   res.json({ success: true, settings: updated });
 });
 
@@ -684,8 +731,8 @@ app.use((err, req, res, next) => {
 /* ================================================================
    START SERVER
 ================================================================ */
-app.listen(PORT, () => {
-  const adminCreds = getStoredAdminCredentials();
+app.listen(PORT, async () => {
+  const adminCreds = await getStoredAdminCredentials();
   console.log(`\n✅ AGEL Server running at http://localhost:${PORT}`);
   console.log(`   Website: http://localhost:${PORT}`);
   console.log(`   Admin:   http://localhost:${PORT}/admin/login.html`);
