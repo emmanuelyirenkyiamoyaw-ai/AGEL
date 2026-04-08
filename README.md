@@ -33,5 +33,23 @@ Admin login is at `http://localhost:3000/admin/login.html`.
 ## Deployment Notes
 
 - `render.yaml` is kept at the repo root for Render.
-- Uploaded files are stored in `public/uploads/`.
-- Content and credentials are stored in `data/`.
+- Uploaded files are stored in `public/uploads/` by default.
+- Content and credentials are stored in `data/` by default.
+- On Render and similar hosts, the application filesystem is ephemeral by default. That means uploads and JSON data can be lost when the app redeploys or restarts.
+- To preserve uploads and settings between deploys, configure persistent storage mounts and set these environment variables:
+  - `DATA_DIR` for JSON data storage
+  - `UPLOADS_DIR` for uploaded image storage
+
+Example Render env vars:
+
+```yaml
+  envVars:
+    - key: NODE_ENV
+      value: production
+    - key: SESSION_SECRET
+      generateValue: true
+    - key: DATA_DIR
+      value: /path/to/persistent/data
+    - key: UPLOADS_DIR
+      value: /path/to/persistent/uploads
+```

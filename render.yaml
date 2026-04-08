@@ -11,3 +11,37 @@ services:
         value: production
       - key: SESSION_SECRET
         generateValue: true
+      - key: DATA_DIR
+        value: /data
+      - key: UPLOADS_DIR
+        value: /uploads
+      - key: PORT
+        value: 3000
+      - key: SMTP_SECURE
+        value: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        value: your-email@gmail.com
+      - key: SMTP_PASS
+        value: your-email-password
+      - key: EMAIL_FROM
+        value: your-email@gmail.com
+      - key: ADMIN_USER
+        value: AGEL
+      - key: ADMIN_PASS
+        value: agel@26
+      - key: GOOGLE_CLIENT_ID
+        value: your-google-client-id
+      - key: GOOGLE_CLIENT_SECRET
+        value: your-google-client-secret
+      - key: DATA_DIR
+        value: /data
+      - key: UPLOADS_DIR
+        value: /uploads
+      - key: PORT
+        value: 3000
+      - key: SMTP_SECURE
+        value: false

@@ -14,7 +14,7 @@
  */
 async function checkAuth() {
   try {
-    const res = await fetch('/api/auth/status', { credentials: 'same-origin' });
+    const res = await fetch('/api/auth/status', { credentials: 'include' });
     const data = await res.json();
     if (!data.authenticated) {
       window.location.href = 'login.html';
@@ -62,7 +62,7 @@ const AGEL_DATA = {
 
     try {
       const results = await Promise.allSettled(endpoints.map(endpoint =>
-        fetch(endpoint.url, { credentials: 'same-origin' })
+        fetch(endpoint.url, { credentials: 'include' })
       ));
 
       for (let i = 0; i < endpoints.length; i++) {
@@ -109,7 +109,7 @@ const AGEL_DATA = {
     this.services = services;
     await fetch('/api/services', {
       method: 'POST',
-      credentials: 'same-origin',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(services)
     });
@@ -122,7 +122,7 @@ const AGEL_DATA = {
     this.projects = projects;
     await fetch('/api/projects', {
       method: 'POST',
-      credentials: 'same-origin',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(projects)
     });
@@ -135,7 +135,7 @@ const AGEL_DATA = {
     this.gallery = gallery;
     await fetch('/api/gallery', {
       method: 'POST',
-      credentials: 'same-origin',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(gallery)
     });
@@ -148,7 +148,7 @@ const AGEL_DATA = {
     this.consultations = consultations;
     await fetch('/api/consultations', {
       method: 'POST',
-      credentials: 'same-origin',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(consultations)
     });
@@ -423,7 +423,7 @@ async function saveService(id) {
     if (id) {
       const res = await fetch(`/api/services/${id}`, {
         method: 'PUT',
-        credentials: 'same-origin',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
@@ -433,7 +433,7 @@ async function saveService(id) {
     } else {
       const res = await fetch('/api/services', {
         method: 'POST',
-        credentials: 'same-origin',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
@@ -463,7 +463,7 @@ async function deleteService(id) {
   try {
     const res = await fetch(`/api/services/${id}`, { 
       method: 'DELETE',
-      credentials: 'same-origin'
+      credentials: 'include'
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to delete service.');
@@ -549,7 +549,7 @@ async function saveProject(id) {
       formData.append('image', fileInput.files[0]);
       const res = await fetch('/api/upload', { 
         method: 'POST',
-        credentials: 'same-origin',
+        credentials: 'include',
         body: formData 
       });
       const data = await res.json();
@@ -564,7 +564,7 @@ async function saveProject(id) {
     if (id) {
       const res = await fetch(`/api/projects/${id}`, {
         method: 'PUT',
-        credentials: 'same-origin',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
@@ -574,7 +574,7 @@ async function saveProject(id) {
     } else {
       const res = await fetch('/api/projects', {
         method: 'POST',
-        credentials: 'same-origin',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
@@ -603,7 +603,7 @@ async function deleteProject(id) {
   try {
     const res = await fetch(`/api/projects/${id}`, { 
       method: 'DELETE',
-      credentials: 'same-origin'
+      credentials: 'include'
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to delete project.');
@@ -694,7 +694,7 @@ async function saveGalleryItem(id) {
       formData.append('image', fileInput.files[0]);
       const res = await fetch('/api/upload', { 
         method: 'POST',
-        credentials: 'same-origin',
+        credentials: 'include',
         body: formData 
       });
       const data = await res.json();
@@ -709,7 +709,7 @@ async function saveGalleryItem(id) {
     if (id) {
       const res = await fetch(`/api/gallery/${id}`, {
         method: 'PUT',
-        credentials: 'same-origin',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
@@ -719,7 +719,7 @@ async function saveGalleryItem(id) {
     } else {
       const res = await fetch('/api/gallery', {
         method: 'POST',
-        credentials: 'same-origin',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
@@ -743,7 +743,7 @@ async function deleteGalleryItem(id) {
   try {
     const res = await fetch(`/api/gallery/${id}`, { 
       method: 'DELETE',
-      credentials: 'same-origin'
+      credentials: 'include'
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to delete gallery item.');
@@ -841,7 +841,7 @@ async function saveTeamMember(id) {
       formData.append('image', fileInput.files[0]);
       const res = await fetch('/api/upload', { 
         method: 'POST',
-        credentials: 'same-origin',
+        credentials: 'include',
         body: formData 
       });
       const data = await res.json();
@@ -856,7 +856,7 @@ async function saveTeamMember(id) {
     if (id) {
       const res = await fetch(`/api/team/${id}`, {
         method: 'PUT',
-        credentials: 'same-origin',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
@@ -866,7 +866,7 @@ async function saveTeamMember(id) {
     } else {
       const res = await fetch('/api/team', {
         method: 'POST',
-        credentials: 'same-origin',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
@@ -895,7 +895,7 @@ async function deleteTeamMember(id) {
   try {
     const res = await fetch(`/api/team/${id}`, { 
       method: 'DELETE',
-      credentials: 'same-origin'
+      credentials: 'include'
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to delete team member.');
@@ -918,6 +918,7 @@ function renderSettings() {
   document.getElementById('settingsPhone1').value = settings.companyPhone1 || '';
   document.getElementById('settingsPhone2').value = settings.companyPhone2 || '';
   document.getElementById('settingsEmail').value = settings.companyEmail || '';
+  document.getElementById('settingsNotificationEmails').value = (settings.notificationEmails || []).join(', ');
   document.getElementById('settingsAddress').value = settings.companyAddress || '';
   document.getElementById('settingsHours').value = settings.workingHours || '';
   document.getElementById('settingsAdminUsername').value = AGEL_DATA.auth.adminUsername || '';
@@ -951,6 +952,7 @@ async function saveSettings() {
     const phone1 = document.getElementById('settingsPhone1').value.trim();
     const phone2 = document.getElementById('settingsPhone2').value.trim();
     const email  = document.getElementById('settingsEmail').value.trim();
+    const notificationEmailsRaw = document.getElementById('settingsNotificationEmails').value.trim();
     const address = document.getElementById('settingsAddress').value.trim();
     const hours  = document.getElementById('settingsHours').value.trim();
     const adminUsername = document.getElementById('settingsAdminUsername').value.trim();
@@ -966,13 +968,22 @@ async function saveSettings() {
       throw new Error('New password and confirmation do not match.');
     }
 
+    const notificationEmails = notificationEmailsRaw
+      .split(/[,;\n]+/)
+      .map(v => v.trim())
+      .filter(Boolean);
+
+    if (notificationEmails.some(e => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))) {
+      throw new Error('Notification emails must be valid email addresses.');
+    }
+
     let qrCodeUrl = AGEL_DATA.settings?.qrCodeUrl || '';
     if (fileInput?.files?.length > 0) {
       const formData = new FormData();
       formData.append('image', fileInput.files[0]);
       const uploadRes = await fetch('/api/upload', { 
         method: 'POST',
-        credentials: 'same-origin',
+        credentials: 'include',
         body: formData 
       });
       const uploadData = await parseJsonResponse(uploadRes);
@@ -984,6 +995,7 @@ async function saveSettings() {
       companyPhone1: phone1,
       companyPhone2: phone2,
       companyEmail: email,
+      notificationEmails,
       companyAddress: address,
       workingHours: hours,
       galaxyDesignsLink: gds,
@@ -998,13 +1010,13 @@ async function saveSettings() {
     const [settingsRes, authRes] = await Promise.all([
       fetch('/api/settings', {
         method: 'PUT',
-        credentials: 'same-origin',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settingsPayload)
       }),
       fetch('/api/auth/credentials', {
         method: 'PUT',
-        credentials: 'same-origin',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(authPayload)
       })
@@ -1064,7 +1076,7 @@ async function deleteConsultation(id) {
   try {
     const res = await fetch(`/api/consultations/${id}`, { 
       method: 'DELETE',
-      credentials: 'same-origin'
+      credentials: 'include'
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to delete consultation.');

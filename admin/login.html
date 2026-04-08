@@ -11,6 +11,10 @@
   <style>
     /* ---- Reset & Base ---- */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      min-height: 100%;
+      overflow-x: hidden;
+    }
     body {
       font-family: 'Open Sans', sans-serif;
       background: #0f0f0f;
@@ -21,7 +25,45 @@
       justify-content: center;
       padding: 24px;
       position: relative;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-width: 0;
+    }
+    @media (max-width: 740px) {
+      html, body {
+        min-height: auto;
+        height: auto;
+        overflow-x: hidden;
+      }
+      body {
+        display: block;
+        padding: 16px;
+        align-items: stretch;
+      }
+      .login-card {
+        margin: 24px auto;
+        padding: 26px 18px;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .logo-container {
+        margin-bottom: 18px;
+      }
+      .circular-logo {
+        width: 78px;
+        height: 78px;
+      }
+      h2 { font-size: 1.35rem; }
+      .subtitle { font-size: 0.82rem; margin-bottom: 22px; }
+      .google-login { margin-bottom: 18px; }
+      .btn-google, .btn-login { padding: 12px 14px; font-size: 0.92rem; }
+      .form-group { margin-bottom: 14px; }
+      .form-group label { font-size: 0.8rem; }
+      .form-group input { font-size: 0.92rem; }
+      .divider { margin: 16px 0; }
+      .back-link { margin-top: 18px; }
+      .back-link a { font-size: 0.8rem; }
     }
     /* Animated background lines */
     body::before {
@@ -137,6 +179,27 @@
     .back-link { text-align: center; margin-top: 24px; }
     .back-link a { color: #666; font-size: 0.82rem; transition: color 0.3s; }
     .back-link a:hover { color: #FFD000; }
+
+    @media (max-width: 480px) {
+      body { padding: 16px; }
+      .login-card {
+        padding: 28px 20px;
+        border-radius: 14px;
+        max-width: 100%;
+        width: 100%;
+      }
+      .circular-logo { width: 80px; height: 80px; }
+      h2 { font-size: 1.35rem; }
+      .subtitle { font-size: 0.82rem; margin-bottom: 24px; }
+      .google-login { margin-bottom: 18px; }
+      .btn-google, .btn-login { padding: 12px 14px; font-size: 0.92rem; }
+      .form-group { margin-bottom: 14px; }
+      .form-group label { font-size: 0.8rem; }
+      .form-group input { font-size: 0.9rem; }
+      .divider { margin: 16px 0; }
+      .back-link { margin-top: 20px; }
+      .back-link a { font-size: 0.8rem; }
+    }
   </style>
 </head>
 <body>
@@ -234,7 +297,7 @@
       try {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
-          credentials: 'same-origin',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
         });

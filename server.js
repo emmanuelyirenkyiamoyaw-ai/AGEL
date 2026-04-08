@@ -17,17 +17,93 @@ const session  = require('express-session');
 const multer   = require('multer');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'agel-secure-secret-key';
+
+// Ensure paths are absolute and resolved correctly
 const dataDir = process.env.DATA_DIR
-  ? path.resolve(process.env.DATA_DIR)
+  ? path.resolve(process.cwd(), process.env.DATA_DIR)
   : path.join(__dirname, 'data');
+
 const uploadsDir = process.env.UPLOADS_DIR
-  ? path.resolve(process.env.UPLOADS_DIR)
+  ? path.resolve(process.cwd(), process.env.UPLOADS_DIR)
   : path.join(__dirname, 'public', 'uploads');
+
+// Prominent warning for Render/Ephemeral environments
+const isEphemeral = !process.env.PERSISTENT_DISK || !process.env.DATA_DIR;
+if (isEphemeral) {
+  console.log('\n' + '!'.repeat(60));
+  console.warn('⚠️  EPHEMERAL STORAGE WARNING:');
+  console.warn('   The current configuration stores data and uploads in the app filesystem.');
+  console.warn('   On platforms like Render, these files WILL BE DELETED on every deploy or restart.');
+  console.warn('   To fix this, go to Render Dashboard -> Disks and mount a disk to /data and /public/uploads.');
+  console.log('!'.repeat(60) + '\n');
+}
+
+console.log('✅ Storage Configured:');
+console.log('   - Data Directory:', dataDir);
+console.log('   - Uploads Directory:', uploadsDir);
+
+function parseNotificationEmailList(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) {
+    return value.map(v => v.toString().trim()).filter(Boolean);
+  }
+  return value
+    .toString()
+    .split(/[,\n;]+/)
+    .map(v => v.trim())
+    .filter(Boolean);
+}
+
+function getNotificationEmails(settings) {
+  if (!settings) return [];
+  return parseNotificationEmailList(settings.notificationEmails || settings.companyEmail || '');
+}
+
+function createEmailTransporter() {
+  const host = process.env.SMTP_HOST;
+  const port = Number(process.env.SMTP_PORT || 587);
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  if (!host || !user || !pass) return null;
+  const secure = process.env.SMTP_SECURE === 'true' || port === 465;
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: { user, pass },
+    tls: { rejectUnauthorized: false }
+  });
+}
+
+const emailTransporter = createEmailTransporter();
+
+async function sendConsultationNotification(entry, emails) {
+  if (!emailTransporter || !emails.length) return;
+  const mailFrom = process.env.EMAIL_FROM || process.env.SMTP_USER;
+  const subject = `New consultation request from ${entry.name}`;
+  const lines = [
+    `Name: ${entry.name}`,
+    `Company: ${entry.company || 'N/A'}`,
+    `Email: ${entry.email}`,
+    `Phone: ${entry.phone}`,
+    `Service: ${entry.service}`,
+    `Description: ${entry.description}`,
+    `Submitted: ${entry.date}`
+  ];
+  await emailTransporter.sendMail({
+    from: mailFrom,
+    to: emails.join(', '),
+    subject,
+    text: lines.join('\n'),
+    html: `<h2>New consultation request</h2><ul>${lines.map(line => `<li>${line}</li>`).join('')}</ul>`
+  });
+}
 
 /* ---- Admin Credentials (for production, use environment variables) ---- */
 const ADMIN_USERNAME = process.env.ADMIN_USER || 'AGEL';
@@ -36,7 +112,8 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASS || 'agel@26';
 /* ---- Google OAuth Configuration ---- */
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'your-google-client-id';
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || 'your-google-client-secret';
-const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || `http://localhost:${PORT}/auth/google/callback`;
+const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL
+  || (process.env.RENDER_EXTERNAL_URL ? `https://${process.env.RENDER_EXTERNAL_URL}/auth/google/callback` : `http://localhost:${PORT}/auth/google/callback`);
 
 /* ---- Middleware ---- */
 app.use(cors());
@@ -47,7 +124,11 @@ app.use(session({
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 }
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'none',
+    maxAge: 7 * 24 * 60 * 60 * 1000
+  }
 }));
 
 /* ---- Passport Configuration ---- */
@@ -80,6 +161,13 @@ passport.use(new GoogleStrategy({
   }
 ));
 
+/* ---- Serve admin panel ---- */
+app.use('/admin', express.static(path.join(__dirname, 'admin')));
+app.get('/admin', (req, res) => res.redirect('/admin/login.html'));
+
+/* ---- Serve uploaded images from configured upload directory ---- */
+app.use('/uploads', express.static(uploadsDir));
+
 /* ---- Serve static public website ---- */
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -97,9 +185,6 @@ const storage = multer.diskStorage({
     cb(null, `${name}-${timestamp}${ext}`);
   }
 });
-
-/* ---- Serve admin panel ---- */
-app.use('/admin', express.static(path.join(__dirname, 'admin')));
 
 const upload = multer({
   storage,
@@ -140,10 +225,12 @@ function readData(file) {
 function writeData(file, data) {
   const fp = path.join(dataDir, file);
   try {
-    fs.writeFileSync(fp, JSON.stringify(data, null, 2));
+    const json = JSON.stringify(data, null, 2);
+    fs.writeFileSync(fp, json, 'utf-8');
+    console.log(`💾 Data saved successfully to ${file} (${json.length} bytes)`);
     return true;
   } catch (err) {
-    console.error(`Error writing to ${file}:`, err);
+    console.error(`❌ CRITICAL ERROR writing to ${file}:`, err.message);
     return false;
   }
 }
@@ -321,6 +408,14 @@ app.post('/api/consultations', (req, res) => {
   };
   consultations.unshift(entry);
   writeData('consultations.json', consultations);
+
+  const settings = readData('settings.json');
+  const notificationEmails = getNotificationEmails(settings);
+  if (notificationEmails.length) {
+    sendConsultationNotification(entry, notificationEmails)
+      .catch(err => console.error('Consultation notification email failed:', err));
+  }
+
   res.json({ success: true, message: 'Consultation request received.' });
 });
 
