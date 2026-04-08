@@ -220,18 +220,7 @@
     <h2>Sign In</h2>
     <p class="subtitle">Access the admin control panel</p>
 
-    <!-- Google Login Button -->
-    <div class="google-login">
-      <a href="/auth/google" class="btn-google">
-        <i class="fab fa-google"></i>
-        Continue with Google
-      </a>
-      <div class="divider">
-        <span>or</span>
-      </div>
-    </div>
-
-    <!-- Login Form -->
+    <!-- Login Form (Primary) -->
     <form id="loginForm" novalidate>
       <div class="form-group">
         <label for="username">Username</label>
@@ -252,6 +241,18 @@
       </button>
       <div class="error-msg" id="errorMsg"></div>
     </form>
+
+    <div class="divider">
+      <span>or</span>
+    </div>
+
+    <!-- Google Login (Optional) -->
+    <div class="google-login">
+      <a href="/auth/google" class="btn-google">
+        <i class="fab fa-google"></i>
+        Continue with Google
+      </a>
+    </div>
 
     <div class="back-link"><a href="../index.html"><i class="fas fa-arrow-left"></i> Back to Website</a></div>
   </div>
