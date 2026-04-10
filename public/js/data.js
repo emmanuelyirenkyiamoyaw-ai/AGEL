@@ -70,7 +70,7 @@ const AGEL_DATA = {
       companyAddress: "Community 25, Tema, Ghana",
       workingHours: "Mon – Fri: 8:00 AM – 6:00 PM",
       galaxyDesignsLink: "https://galaxydesignsstudio.com",
-      qrCodeUrl: "",
+      qrCodeUrl: "/frame.png",
       heroStat1: "50+ Projects Completed",
       heroStat2: "10+ Years Experience",
       heroStat3: "100% Safety Compliance"

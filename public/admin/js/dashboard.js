@@ -8,6 +8,16 @@
    SECTION 1: AUTHENTICATION & INITIALIZATION
 ================================================================ */
 
+const DEFAULT_QR_CODE_URL = 'frame.png';
+
+function getQrCodeUrl(settings = {}) {
+  const qrCodeUrl = typeof settings.qrCodeUrl === 'string' ? settings.qrCodeUrl.trim() : '';
+  if (!qrCodeUrl || qrCodeUrl === '/uploads/frame.png' || qrCodeUrl === '/frame.png') {
+    return DEFAULT_QR_CODE_URL;
+  }
+  return qrCodeUrl;
+}
+
 /**
  * Check if user is authenticated before allowing access to dashboard
  * Redirects to login page if not authenticated
@@ -926,7 +936,7 @@ function renderSettings() {
   document.getElementById('settingsConfirmPassword').value = '';
   document.getElementById('settingsGDSLink').value = settings.galaxyDesignsLink || '';
   const preview = document.getElementById('settingsQrPreview');
-  preview.innerHTML = settings.qrCodeUrl ? `<img src="${settings.qrCodeUrl}" alt="QR Code" />` : '<span>No QR code uploaded yet.</span>';
+  preview.innerHTML = `<img src="${getQrCodeUrl(settings)}" alt="QR Code" />`;
 }
 
 /**
@@ -977,7 +987,7 @@ async function saveSettings() {
       throw new Error('Notification emails must be valid email addresses.');
     }
 
-    let qrCodeUrl = AGEL_DATA.settings?.qrCodeUrl || '';
+    let qrCodeUrl = getQrCodeUrl(AGEL_DATA.settings);
     if (fileInput?.files?.length > 0) {
       const formData = new FormData();
       formData.append('image', fileInput.files[0]);

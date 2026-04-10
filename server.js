@@ -24,6 +24,7 @@ require('dotenv').config();
 const app  = express();
 const PORT = process.env.PORT || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'agel-secure-secret-key';
+const DEFAULT_QR_CODE_URL = 'frame.png';
 
 // Ensure paths are absolute and resolved correctly
 const dataDir = process.env.DATA_DIR
@@ -48,6 +49,27 @@ if (isEphemeral) {
 console.log('✅ Storage Configured:');
 console.log('   - Data Directory:', dataDir);
 console.log('   - Uploads Directory:', uploadsDir);
+
+function normalizeQrCodeUrl(qrCodeUrl) {
+  const value = typeof qrCodeUrl === 'string' ? qrCodeUrl.trim() : '';
+  if (!value) return DEFAULT_QR_CODE_URL;
+
+  // Older saved settings pointed at `/uploads/frame.png`, but the actual asset is served from `/public/frame.png`.
+  if (value === '/uploads/frame.png') return DEFAULT_QR_CODE_URL;
+
+  return value;
+}
+
+function normalizeSettings(settings) {
+  const safeSettings = settings && typeof settings === 'object' && !Array.isArray(settings)
+    ? settings
+    : {};
+
+  return {
+    ...safeSettings,
+    qrCodeUrl: normalizeQrCodeUrl(safeSettings.qrCodeUrl)
+  };
+}
 
 function parseNotificationEmailList(value) {
   if (!value) return [];
@@ -678,13 +700,13 @@ app.delete('/api/team/:id', requireAuth, async (req, res) => {
 ================================================================ */
 
 app.get('/api/settings', async (req, res) => {
-  res.json(await readData('settings'));
+  res.json(normalizeSettings(await readData('settings')));
 });
 
 app.put('/api/settings', requireAuth, async (req, res) => {
   const updates = req.body;
-  const current = await readData('settings');
-  const updated = { ...current, ...updates };
+  const current = normalizeSettings(await readData('settings'));
+  const updated = normalizeSettings({ ...current, ...updates });
   await writeData('settings', updated);
   res.json({ success: true, settings: updated });
 });

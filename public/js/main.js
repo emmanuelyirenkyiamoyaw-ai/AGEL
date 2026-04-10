@@ -9,6 +9,16 @@
   renderPageContent();
 })();
 
+const DEFAULT_QR_CODE_URL = 'frame.png';
+
+function getQrCodeUrl(settings = {}) {
+  const qrCodeUrl = typeof settings.qrCodeUrl === 'string' ? settings.qrCodeUrl.trim() : '';
+  if (!qrCodeUrl || qrCodeUrl === '/uploads/frame.png' || qrCodeUrl === '/frame.png') {
+    return DEFAULT_QR_CODE_URL;
+  }
+  return qrCodeUrl;
+}
+
 function renderPageContent() {
 (function initNavbar() {
   const navbar    = document.getElementById('navbar');
@@ -323,14 +333,12 @@ function applySiteSettings() {
     gdsLink.href = settings.galaxyDesignsLink || 'https://galaxydesignsstudio.com';
   }
 
-  if (qrImage && qrFallback) {
-    if (settings.qrCodeUrl) {
-      qrImage.src = settings.qrCodeUrl;
-      qrImage.style.display = 'block';
-      qrFallback.style.display = 'none';
-    } else {
-      qrImage.style.display = 'none';
-      qrFallback.style.display = 'block';
-    }
+  if (qrImage) {
+    qrImage.onerror = () => {
+      if (!qrImage.src.endsWith('frame.png')) {
+        qrImage.src = 'frame.png';
+      }
+    };
+    qrImage.src = getQrCodeUrl(settings);
   }
 }
