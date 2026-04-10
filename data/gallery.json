@@ -10,5 +10,11 @@
     "label": "Avatar AGEL",
     "url": "/uploads/profile (2)-1775496497689.png",
     "icon": "fas fa-server"
+  },
+  {
+    "id": 3,
+    "label": "Website QR Code",
+    "url": "frame.png",
+    "icon": "fas fa-qrcode"
   }
 ]
