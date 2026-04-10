@@ -286,6 +286,93 @@ body {
   border: 1px solid var(--border);
 }
 
+.btn-sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, var(--success) 0%, #388e3c 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+}
+
+.btn-sync:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.btn-sync:active {
+  transform: scale(0.98);
+}
+
+.btn-sync.syncing i {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.sync-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.sync-status {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Image Preview & Removal Styles */
+.img-preview-container {
+  position: relative;
+  display: inline-block;
+  margin-top: 0.5rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--accent);
+}
+
+.img-preview-container img {
+  display: block;
+  max-width: 150px;
+  max-height: 100px;
+  object-fit: cover;
+}
+
+.btn-remove-img {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(211, 47, 47, 0.9);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem;
+  transition: var(--transition);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.btn-remove-img:hover {
+  background: #b71c1c;
+  transform: scale(1.1);
+}
+
 /* ================================================================
    TAB CONTENT & CARDS
 ================================================================ */
@@ -1014,6 +1101,7 @@ tbody tr:last-child td {
 .empty-state p {
   font-size: 0.875rem;
 }
+.btn {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 10px 20px; border-radius: var(--radius);
   font-family: var(--font-h); font-weight: 600; font-size: 0.85rem;

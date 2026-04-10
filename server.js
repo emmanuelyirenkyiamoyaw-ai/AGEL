@@ -19,12 +19,15 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
+const { exec } = require('child_process');
 require('dotenv').config();
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'agel-secure-secret-key';
 const DEFAULT_QR_CODE_URL = 'frame.png';
+
+let lastGitSyncTime = null;
 
 // Ensure paths are absolute and resolved correctly
 const dataDir = process.env.DATA_DIR
@@ -284,7 +287,64 @@ async function readData(key) {
   }
 }
 
+async function gitSync(message = "Update from admin dashboard") {
+  if (process.env.GIT_SYNC_DISABLED === 'true') return;
+  
+  const token = process.env.GITHUB_TOKEN;
+  const repo = process.env.GITHUB_REPO_URL;
+  
+  // Configure remote URL with token if available
+  let remoteUrl = 'origin';
+  if (token && repo) {
+    remoteUrl = repo.replace('https://', `https://${token}@`);
+  }
+
+  // Escape quotes in commit message
+  const safeMessage = message.replace(/"/g, '\\"');
+
+  const commands = [
+    'git config user.name "AGEL Admin"',
+    'git config user.email "admin@agel.gh"',
+    'git add .',
+    `git commit -m "${safeMessage}"`,
+    `git push ${remoteUrl} master`
+  ];
+
+  console.log('🚀 Starting GitHub sync...');
+  
+  for (const cmd of commands) {
+    try {
+      await new Promise((resolve, reject) => {
+        exec(cmd, { cwd: process.cwd() }, (error, stdout, stderr) => {
+          if (error) {
+            const out = stdout + stderr;
+            if (cmd.includes('commit') && (out.includes('nothing to commit') || out.includes('up-to-date'))) {
+              return resolve();
+            }
+            if (cmd.includes('push') && out.includes('Everything up-to-date')) {
+              return resolve();
+            }
+            console.error(`❌ Git error (${cmd}):`, stderr || error.message);
+            return reject(error);
+          }
+          resolve();
+        });
+      });
+    } catch (err) {
+      console.error('🛑 GitHub sync failed.');
+      return false;
+    }
+  }
+  
+  console.log('✅ GitHub sync complete!');
+  lastGitSyncTime = new Date().toISOString();
+  return true;
+}
+
 async function writeData(key, data) {
+  let mongoSuccess = false;
+  
+  // 1. Try MongoDB persistence
   try {
     await DataRecord.findOneAndUpdate(
       { key },
@@ -292,18 +352,27 @@ async function writeData(key, data) {
       { upsert: true, new: true }
     );
     console.log(`💾 Saved ${key} to MongoDB`);
-    return true;
+    mongoSuccess = true;
   } catch (err) {
-    console.error(`Write error for ${key}:`, err.message);
-    // Partial fallback: still write to JSON in dev if Mongo fails
-    if (process.env.NODE_ENV !== 'production') {
-      const file = key.endsWith('.json') ? key : `${key}.json`;
-      const fp = path.join(dataDir, file);
-      fs.writeFileSync(fp, JSON.stringify(data, null, 2), 'utf-8');
-      console.log(`📡 Fallback: Saved ${key} to local JSON`);
-    }
-    return false;
+    console.error(`MongoDB Write error for ${key}:`, err.message);
   }
+
+  // 2. Persist to local JSON for Git tracking (Requirement: "change in the code")
+  try {
+    const file = key.endsWith('.json') ? key : `${key}.json`;
+    const fp = path.join(dataDir, file);
+    fs.writeFileSync(fp, JSON.stringify(data, null, 2), 'utf-8');
+    console.log(`📂 Updated local file: ${file}`);
+    
+    // 3. Trigger background GitHub sync (don't await to avoid UI lag)
+    gitSync(`Admin update: ${key}`).catch(err => {
+      console.error('Background Git sync failed:', err.message);
+    });
+  } catch (err) {
+    console.error(`Local file write error for ${key}:`, err.message);
+  }
+
+  return mongoSuccess;
 }
 
 // Database initialization will happen lazily on first access via readData
@@ -589,7 +658,7 @@ app.put('/api/projects/:id', requireAuth, async (req, res) => {
   const { title, desc, category, img } = req.body;
   if (!title || !desc) return res.status(400).json({ error: 'Title and description required.' });
   const items = (await readData('projects')).map(p => 
-    p.id === id ? { ...p, title, desc, category: category || p.category, img: img || p.img, id } : p
+    p.id === id ? { ...p, title, desc, category: category || p.category, img: img !== undefined ? img : p.img, id } : p
   );
   await writeData('projects', items);
   res.json({ success: true });
@@ -638,7 +707,7 @@ app.put('/api/gallery/:id', requireAuth, async (req, res) => {
   const { label, url, icon } = req.body;
   if (!label) return res.status(400).json({ error: 'Label required.' });
   const items = (await readData('gallery')).map(g => 
-    g.id === id ? { ...g, label, url: url || g.url, icon: icon || g.icon, id } : g
+    g.id === id ? { ...g, label, url: url !== undefined ? url : g.url, icon: icon || g.icon, id } : g
   );
   await writeData('gallery', items);
   res.json({ success: true });
@@ -724,7 +793,30 @@ app.post('/api/upload', requireAuth, (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
     const imageUrl = `/uploads/${req.file.filename}`;
+    
+    // Trigger GitHub sync for the new image
+    gitSync(`Admin upload: ${req.file.filename}`).catch(err => {
+      console.error('Background Git sync for upload failed:', err.message);
+    });
+
     res.json({ success: true, url: imageUrl });
+  });
+});
+
+app.post('/api/sync', requireAuth, async (req, res) => {
+  const success = await gitSync('Manual sync from dashboard');
+  if (success) {
+    res.json({ success: true, message: 'GitHub synchronization complete!' });
+  } else {
+    res.status(500).json({ error: 'GitHub synchronization failed. Check server logs.' });
+  }
+});
+
+app.get('/api/sync/status', requireAuth, (req, res) => {
+  res.json({
+    lastSync: lastGitSyncTime,
+    enabled: process.env.GIT_SYNC_DISABLED !== 'true',
+    config: !!(process.env.GITHUB_TOKEN && process.env.GITHUB_REPO_URL)
   });
 });
 
