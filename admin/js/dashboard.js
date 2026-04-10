@@ -473,7 +473,7 @@ async function saveService(id) {
     const payload = { title, desc, icon };
 
     if (id) {
-      const res = await fetch(\`/api/services/\${id}\`, {
+      const res = await fetch(`/api/services/${id}`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -512,7 +512,7 @@ function editService(id) {
 async function deleteService(id) {
   if (!confirm('Delete this service?')) return;
   try {
-    const res = await fetch(\`/api/services/\${id}\`, { 
+    const res = await fetch(`/api/services/${id}`, { 
       method: 'DELETE',
       credentials: 'include'
     });
@@ -560,33 +560,33 @@ function openProjectModal(project) {
   openModal(isEdit ? 'Edit Project' : 'Add New Project', `
     <div class="mform-group">
       <label>Project Title *</label>
-      <input type="text" id="mPrjTitle" value="\${isEdit ? escHtml(project.title) : ''}" placeholder="Project name" />
+      <input type="text" id="mPrjTitle" value="${isEdit ? escHtml(project.title) : ''}" placeholder="Project name" />
     </div>
     <div class="mform-group">
       <label>Category *</label>
       <select id="mPrjCat">
-        \${PROJECT_CATEGORIES.map(c => \`<option \${isEdit && project.category === c ? 'selected' : ''}>\${c}</option>\`).join('')}
+        ${PROJECT_CATEGORIES.map(c => `<option ${isEdit && project.category === c ? 'selected' : ''}>${c}</option>`).join('')}
       </select>
     </div>
     <div class="mform-group">
       <label>Description *</label>
-      <textarea id="mPrjDesc" rows="3">\${isEdit ? escHtml(project.desc) : ''}</textarea>
+      <textarea id="mPrjDesc" rows="3">${isEdit ? escHtml(project.desc) : ''}</textarea>
     </div>
     <div class="mform-group">
       <label>Project Image</label>
       <input type="file" id="mPrjImgFile" accept="image/*" style="margin-bottom: 0.5rem;" onchange="handleFileSelect(this, 'prjPreview')" />
-      <div id="prjPreview" class="img-preview-container" style="\${isEdit && project.img ? '' : 'display:none;'}">
-        \${isEdit && project.img ? \`<img src="\${project.img}" id="prjPreviewImg" />\` : '<img src="" id="prjPreviewImg" />'}
+      <div id="prjPreview" class="img-preview-container" style="${isEdit && project.img ? '' : 'display:none;'}">
+        ${isEdit && project.img ? `<img src="${project.img}" id="prjPreviewImg" />` : '<img src="" id="prjPreviewImg" />'}
         <button type="button" class="btn-remove-img" onclick="clearImage('mPrjImgFile', 'prjPreview')" title="Remove image">
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <input type="hidden" id="mPrjImgPath" value="\${isEdit ? project.img || '' : ''}" />
+      <input type="hidden" id="mPrjImgPath" value="${isEdit ? project.img || '' : ''}" />
     </div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveProject(\${isEdit ? project.id : 'null'})">
-        <i class="fas fa-save"></i> \${isEdit ? 'Save Changes' : 'Add Project'}
+      <button class="btn btn-primary" onclick="saveProject(${isEdit ? project.id : 'null'})">
+        <i class="fas fa-save"></i> ${isEdit ? 'Save Changes' : 'Add Project'}
       </button>
     </div>
   `);
@@ -618,7 +618,7 @@ async function saveProject(id) {
 
     const payload = { title, desc, category, img };
     if (id) {
-      const res = await fetch(\`/api/projects/\${id}\`, {
+      const res = await fetch(`/api/projects/${id}`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -657,7 +657,7 @@ function editProject(id) {
 async function deleteProject(id) {
   if (!confirm('Delete this project?')) return;
   try {
-    const res = await fetch(\`/api/projects/\${id}\`, { 
+    const res = await fetch(`/api/projects/${id}`, { 
       method: 'DELETE',
       credentials: 'include'
     });
@@ -693,16 +693,16 @@ function renderGallery() {
   grid.innerHTML = gallery.map(item => `
     <div class="gallery-admin-item">
       <div class="gallery-admin-thumb">
-        \${item.url
-          ? \`<img src="\${item.url}" alt="\${item.label}" />\`
-          : \`<i class="\${item.icon || 'fas fa-image'}"></i>\`
+        ${item.url
+          ? `<img src="${item.url}" alt="${item.label}" />`
+          : `<i class="${item.icon || 'fas fa-image'}"></i>`
         }
       </div>
       <div class="gallery-admin-info">
-        <span title="\${item.label}">\${item.label}</span>
+        <span title="${item.label}">${item.label}</span>
         <div style="display: flex; gap: 0.5rem;">
-          <button class="btn btn-edit btn-sm" onclick="editGalleryItem(\${item.id})"><i class="fas fa-pen"></i></button>
-          <button class="btn btn-danger btn-sm" onclick="deleteGalleryItem(\${item.id})"><i class="fas fa-trash"></i></button>
+          <button class="btn btn-edit btn-sm" onclick="editGalleryItem(${item.id})"><i class="fas fa-pen"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="deleteGalleryItem(${item.id})"><i class="fas fa-trash"></i></button>
         </div>
       </div>
     </div>
@@ -716,28 +716,28 @@ function openGalleryModal(item) {
   openModal(isEdit ? 'Edit Gallery Image' : 'Add Gallery Image', `
     <div class="mform-group">
       <label>Label / Caption *</label>
-      <input type="text" id="mGalLabel" value="\${isEdit ? escHtml(item.label) : ''}" placeholder="e.g. Power Substation Installation" />
+      <input type="text" id="mGalLabel" value="${isEdit ? escHtml(item.label) : ''}" placeholder="e.g. Power Substation Installation" />
     </div>
     <div class="mform-group">
-      <label>Upload Image\${isEdit ? ' (leave empty to keep current)' : ' *'}</label>
-      <input type="file" id="mGalImgFile" accept="image/*" \${!isEdit ? 'required' : ''} onchange="handleFileSelect(this, 'galPreview')" />
-      <div id="galPreview" class="img-preview-container" style="\${isEdit && item.url ? '' : 'display:none;'}">
-        \${isEdit && item.url ? \`<img src="\${item.url}" id="galPreviewImg" />\` : '<img src="" id="galPreviewImg" />'}
+      <label>Upload Image${isEdit ? ' (leave empty to keep current)' : ' *'}</label>
+      <input type="file" id="mGalImgFile" accept="image/*" ${!isEdit ? 'required' : ''} onchange="handleFileSelect(this, 'galPreview')" />
+      <div id="galPreview" class="img-preview-container" style="${isEdit && item.url ? '' : 'display:none;'}">
+        ${isEdit && item.url ? `<img src="${item.url}" id="galPreviewImg" />` : '<img src="" id="galPreviewImg" />'}
         <button type="button" class="btn-remove-img" onclick="clearImage('mGalImgFile', 'galPreview')" title="Remove image">
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <input type="hidden" id="mGalImgPath" value="\${isEdit ? item.url || '' : ''}" />
+      <input type="hidden" id="mGalImgPath" value="${isEdit ? item.url || '' : ''}" />
     </div>
     <div class="mform-group">
       <label>Fallback Icon</label>
       <select id="mGalIcon">
-        \${renderIconOptions(GALLERY_ICONS, isEdit ? item.icon : '')}
+        ${renderIconOptions(GALLERY_ICONS, isEdit ? item.icon : '')}
       </select>
     </div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveGalleryItem(\${isEdit ? item.id : 'null'})"><i class="fas fa-save"></i> \${isEdit ? 'Save Changes' : 'Add Image'}</button>
+      <button class="btn btn-primary" onclick="saveGalleryItem(${isEdit ? item.id : 'null'})"><i class="fas fa-save"></i> ${isEdit ? 'Save Changes' : 'Add Image'}</button>
     </div>
   `);
 }
@@ -768,7 +768,7 @@ async function saveGalleryItem(id) {
 
     const payload = { label, url, icon };
     if (id) {
-      const res = await fetch(\`/api/gallery/\${id}\`, {
+      const res = await fetch(`/api/gallery/${id}`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -802,7 +802,7 @@ async function saveGalleryItem(id) {
 async function deleteGalleryItem(id) {
   if (!confirm('Remove this gallery image?')) return;
   try {
-    const res = await fetch(\`/api/gallery/\${id}\`, { 
+    const res = await fetch(`/api/gallery/${id}`, { 
       method: 'DELETE',
       credentials: 'include'
     });
@@ -827,63 +827,63 @@ function renderTeam() {
   if (!tbody) return;
   const team = AGEL_DATA.team;
   if (!team.length) {
-    tbody.innerHTML = \`<tr><td colspan="6" class="empty-state"><i class="fas fa-users"></i><p>No team members found. Add a team member to get started.</p></td></tr>\`;
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-state"><i class="fas fa-users"></i><p>No team members found. Add a team member to get started.</p></td></tr>`;
     return;
   }
-  tbody.innerHTML = team.map(member => \`
+  tbody.innerHTML = team.map(member => `
     <tr>
-      <td><img src="\${member.img || '../profile.png'}" alt="\${escHtml(member.name)}" class="team-thumb" /></td>
-      <td>\${escHtml(member.name)}</td>
-      <td>\${escHtml(member.role)}</td>
-      <td><a href="mailto:\${escHtml(member.email)}">\${escHtml(member.email)}</a></td>
-      <td>\${escHtml(member.phone)}</td>
+      <td><img src="${member.img || '../profile.png'}" alt="${escHtml(member.name)}" class="team-thumb" /></td>
+      <td>${escHtml(member.name)}</td>
+      <td>${escHtml(member.role)}</td>
+      <td><a href="mailto:${escHtml(member.email)}">${escHtml(member.email)}</a></td>
+      <td>${escHtml(member.phone)}</td>
       <td>
         <div class="actions">
-          <button class="btn btn-edit btn-sm" onclick="editTeamMember(\${member.id})"><i class="fas fa-pen"></i> Edit</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteTeamMember(\${member.id})"><i class="fas fa-trash"></i></button>
+          <button class="btn btn-edit btn-sm" onclick="editTeamMember(${member.id})"><i class="fas fa-pen"></i> Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTeamMember(${member.id})"><i class="fas fa-trash"></i></button>
         </div>
       </td>
     </tr>
-  \`).join('');
+  `).join('');
 }
 
 document.getElementById('addTeamBtn')?.addEventListener('click', () => openTeamModal(null));
 
 function openTeamModal(member) {
   const isEdit = !!member;
-  openModal(isEdit ? 'Edit Team Member' : 'Add Team Member', \`
+  openModal(isEdit ? 'Edit Team Member' : 'Add Team Member', `
     <div class="mform-group">
       <label>Name *</label>
-      <input type="text" id="mTeamName" value="\${isEdit ? escHtml(member.name) : ''}" placeholder="Reuben Akwafo Tswasam" />
+      <input type="text" id="mTeamName" value="${isEdit ? escHtml(member.name) : ''}" placeholder="Reuben Akwafo Tswasam" />
     </div>
     <div class="mform-group">
       <label>Role *</label>
-      <input type="text" id="mTeamRole" value="\${isEdit ? escHtml(member.role) : ''}" placeholder="General Manager" />
+      <input type="text" id="mTeamRole" value="${isEdit ? escHtml(member.role) : ''}" placeholder="General Manager" />
     </div>
     <div class="mform-group">
       <label>Email</label>
-      <input type="email" id="mTeamEmail" value="\${isEdit ? escHtml(member.email) : ''}" placeholder="manager@example.com" />
+      <input type="email" id="mTeamEmail" value="${isEdit ? escHtml(member.email) : ''}" placeholder="manager@example.com" />
     </div>
     <div class="mform-group">
       <label>Phone</label>
-      <input type="text" id="mTeamPhone" value="\${isEdit ? escHtml(member.phone) : ''}" placeholder="0266903265" />
+      <input type="text" id="mTeamPhone" value="${isEdit ? escHtml(member.phone) : ''}" placeholder="0266903265" />
     </div>
     <div class="mform-group">
       <label>Bio</label>
-      <textarea id="mTeamBio" rows="4" placeholder="Short profile for the manager or team member...">\${isEdit ? escHtml(member.bio) : ''}</textarea>
+      <textarea id="mTeamBio" rows="4" placeholder="Short profile for the manager or team member...">${isEdit ? escHtml(member.bio) : ''}</textarea>
     </div>
     <div class="mform-group">
       <label>Profile Picture</label>
       <input type="file" id="mTeamImgFile" accept="image/*" />
-      \${isEdit && member.img ? \`<div style="font-size:0.85rem; color: #FFD000; margin-top:0.5rem;">Current: \${member.img}</div>\` : ''}
+      ${isEdit && member.img ? `<div style="font-size:0.85rem; color: #FFD000; margin-top:0.5rem;">Current: ${member.img}</div>` : ''}
     </div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveTeamMember(\${isEdit ? member.id : 'null'})">
-        <i class="fas fa-save"></i> \${isEdit ? 'Save Member' : 'Add Member'}
+      <button class="btn btn-primary" onclick="saveTeamMember(${isEdit ? member.id : 'null'})">
+        <i class="fas fa-save"></i> ${isEdit ? 'Save Member' : 'Add Member'}
       </button>
     </div>
-  \`);
+  `);
 }
 
 async function saveTeamMember(id) {
@@ -916,7 +916,7 @@ async function saveTeamMember(id) {
 
     const payload = { name, role, email, phone, bio, img };
     if (id) {
-      const res = await fetch(\`/api/team/\${id}\`, {
+      const res = await fetch(`/api/team/${id}`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -955,7 +955,7 @@ function editTeamMember(id) {
 async function deleteTeamMember(id) {
   if (!confirm('Delete this team member?')) return;
   try {
-    const res = await fetch(\`/api/team/\${id}\`, { 
+    const res = await fetch(`/api/team/${id}`, { 
       method: 'DELETE',
       credentials: 'include'
     });
@@ -996,7 +996,7 @@ function renderSettings() {
   if (gds) gds.value = settings.galaxyDesignsLink || '';
   
   const preview = document.getElementById('settingsQrPreview');
-  if (preview) preview.innerHTML = \`<img src="\${getQrCodeUrl(settings)}" alt="QR Code" />\`;
+  if (preview) preview.innerHTML = `<img src="${getQrCodeUrl(settings)}" alt="QR Code" />`;
 }
 
 /**
@@ -1008,7 +1008,7 @@ async function parseJsonResponse(res) {
   try {
     return JSON.parse(text);
   } catch (err) {
-    throw new Error(\`Unexpected response: \${text.slice(0, 200)}\`);
+    throw new Error(`Unexpected response: ${text.slice(0, 200)}`);
   }
 }
 
@@ -1039,11 +1039,11 @@ async function saveSettings() {
     }
 
     const notificationEmails = notificationEmailsRaw
-      .split(/[,;\\n]+/)
+      .split(/[,;n]+/)
       .map(v => v.trim())
       .filter(Boolean);
 
-    if (notificationEmails.some(e => !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(e))) {
+    if (notificationEmails.some(e => !/^[^s@]+@[^s@]+.[^s@]+$/.test(e))) {
       throw new Error('Notification emails must be valid email addresses.');
     }
 
@@ -1127,26 +1127,26 @@ function renderConsultations() {
     return;
   }
   noMsg.style.display = 'none';
-  tbody.innerHTML = consultations.map(c => \`
+  tbody.innerHTML = consultations.map(c => `
     <tr>
-      <td style="white-space:nowrap;font-size:0.78rem;color:#888">\${c.date}</td>
-      <td><strong>\${c.name}</strong></td>
-      <td>\${c.company || '—'}</td>
-      <td><a href="mailto:\${c.email}" style="color:#FFD000">\${c.email}</a></td>
-      <td>\${c.phone}</td>
-      <td><span class="service-tag">\${c.service}</span></td>
-      <td class="truncate" style="max-width:180px">\${c.description}</td>
+      <td style="white-space:nowrap;font-size:0.78rem;color:#888">${c.date}</td>
+      <td><strong>${c.name}</strong></td>
+      <td>${c.company || '—'}</td>
+      <td><a href="mailto:${c.email}" style="color:#FFD000">${c.email}</a></td>
+      <td>${c.phone}</td>
+      <td><span class="service-tag">${c.service}</span></td>
+      <td class="truncate" style="max-width:180px">${c.description}</td>
       <td>
-        <button class="btn btn-danger btn-sm" onclick="deleteConsultation(\${c.id})"><i class="fas fa-trash"></i></button>
+        <button class="btn btn-danger btn-sm" onclick="deleteConsultation(${c.id})"><i class="fas fa-trash"></i></button>
       </td>
     </tr>
-  \`).join('');
+  `).join('');
 }
 
 async function deleteConsultation(id) {
   if (!confirm('Delete this consultation request?')) return;
   try {
-    const res = await fetch(\`/api/consultations/\${id}\`, { 
+    const res = await fetch(`/api/consultations/${id}`, { 
       method: 'DELETE',
       credentials: 'include'
     });
@@ -1246,7 +1246,7 @@ async function updateSyncStatus() {
     if (data.lastSync) {
       const date = new Date(data.lastSync);
       const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      statusEl.textContent = \`Last synced: \${timeStr}\`;
+      statusEl.textContent = `Last synced: ${timeStr}`;
     } else if (data.config) {
       statusEl.textContent = 'Not synced yet';
     } else {
